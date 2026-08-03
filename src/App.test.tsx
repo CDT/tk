@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import App from './App'
+import App, { shuffleItems } from './App'
 import { studyData } from './data'
 
 describe('collection data', () => {
@@ -33,7 +33,22 @@ describe('collection data', () => {
 })
 
 describe('TK study flow', () => {
-  beforeEach(() => localStorage.clear())
+  beforeEach(() => {
+    localStorage.clear()
+    vi.spyOn(Math, 'random').mockReturnValue(0.999999)
+  })
+
+  afterEach(() => vi.restoreAllMocks())
+
+  it('shuffles collection cards without changing the source data', () => {
+    vi.mocked(Math.random).mockReturnValue(0)
+    const cards = studyData.translationCollections[0].cards
+    const shuffled = shuffleItems(cards)
+
+    expect(shuffled.map((card) => card.id)).not.toEqual(cards.map((card) => card.id))
+    expect(new Set(shuffled.map((card) => card.id))).toEqual(new Set(cards.map((card) => card.id)))
+    expect(studyData.translationCollections[0].cards).toBe(cards)
+  })
 
   it('selects the business collection and reveals its complete translation', () => {
     render(<App />)

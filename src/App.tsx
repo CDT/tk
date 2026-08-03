@@ -25,6 +25,19 @@ const languageLabels: Record<TargetLanguage, string> = {
   ja: '日本語',
 }
 
+export function shuffleItems<T>(items: readonly T[]): T[] {
+  const shuffled = [...items]
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1))
+    const currentItem = shuffled[index]
+    shuffled[index] = shuffled[randomIndex]
+    shuffled[randomIndex] = currentItem
+  }
+
+  return shuffled
+}
+
 function Logo() {
   return (
     <div className="logo-mark" aria-hidden="true">
@@ -159,6 +172,16 @@ function EmptyCollection() {
 }
 
 export default function App() {
+  const [sessionData] = useState(() => ({
+    translationCollections: studyData.translationCollections.map((collection) => ({
+      ...collection,
+      cards: shuffleItems(collection.cards),
+    })),
+    excerptCollections: studyData.excerptCollections.map((collection) => ({
+      ...collection,
+      cards: shuffleItems(collection.cards),
+    })),
+  }))
   const [mode, setMode] = useState<StudyMode>('translation')
   const [language, setLanguage] = useState<TargetLanguage>('en')
   const [collectionIndices, setCollectionIndices] = useState<Record<StudyMode, number>>({ translation: 0, excerpt: 0 })
@@ -167,8 +190,8 @@ export default function App() {
   const { progress, rate, reset } = useStudyProgress()
 
   const collections = mode === 'translation'
-    ? studyData.translationCollections
-    : studyData.excerptCollections
+    ? sessionData.translationCollections
+    : sessionData.excerptCollections
   const collection = collections[collectionIndices[mode]] as TranslationCollection | ExcerptCollection | undefined
   const cards = collection?.cards ?? []
   const currentIndex = Math.min(cardIndices[mode], Math.max(cards.length - 1, 0))
@@ -249,7 +272,7 @@ export default function App() {
               onClick={() => changeMode('translation')}
             >
               <Languages size={19} />
-              <span><strong>Translation</strong><small>{studyData.translationCollections.length} collection · 中 → EN / 日本語</small></span>
+              <span><strong>Translation</strong><small>{sessionData.translationCollections.length} collection · 中 → EN / 日本語</small></span>
             </button>
             <button
               type="button"
@@ -257,7 +280,7 @@ export default function App() {
               onClick={() => changeMode('excerpt')}
             >
               <BookOpenText size={19} />
-              <span><strong>Excerpts</strong><small>{studyData.excerptCollections.length} collection · 诗词与古文</small></span>
+              <span><strong>Excerpts</strong><small>{sessionData.excerptCollections.length} collection · 诗词与古文</small></span>
             </button>
           </nav>
           <p className="sidebar-footer">No streaks. No noise.<br />Just something worth remembering.</p>
