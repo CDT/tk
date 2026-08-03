@@ -1,0 +1,914 @@
+{
+  "translationCollections": [
+    {
+      "id": "business-core-01",
+      "title": "Business Core 01",
+      "subtitle": "100 high-frequency long sentences",
+      "description": "Advanced workplace communication across meetings, projects, negotiation, sales, finance, operations, people management, strategy, and compliance.",
+      "levels": ["IELTS Band 9 target", "JLPT N1 target"],
+      "cards": [
+        {
+          "id": "bc01-001",
+          "source": "在会议开始之前，我们需要明确今天的首要目标，以免把有限的时间浪费在与最终决定无关的细节上。",
+          "note": "Meetings · Setting priorities",
+          "translations": {
+            "en": { "text": "Before the meeting begins, we need to clarify today's primary objective so that our limited time is not consumed by details that have no bearing on the final decision.", "hints": ["primary objective", "final decision"] },
+            "ja": { "text": "会議を始める前に、本日の最優先事項を明確にし、最終的な意思決定に関係のない細部に限られた時間を費やさないようにする必要があります。", "hints": ["最優先事項", "意思決定"] }
+          }
+        },
+        {
+          "id": "bc01-002",
+          "source": "如果某个议题并不紧急，而且目前掌握的信息不足以支持结论，我们最好把它推迟到下次会议再讨论。",
+          "note": "Meetings · Deferring discussion",
+          "translations": {
+            "en": { "text": "If an issue is neither urgent nor supported by sufficient evidence, we would be better advised to defer it until the next meeting rather than force a premature conclusion.", "hints": ["sufficient evidence", "premature conclusion"] },
+            "ja": { "text": "緊急性がなく、結論を裏付ける十分な情報もそろっていない議題については、無理に結論を出さず、次回の会議まで持ち越すのが賢明です。", "hints": ["十分な情報", "持ち越す"] }
+          }
+        },
+        {
+          "id": "bc01-003",
+          "source": "请在会后两小时内分发会议纪要，并清楚记录每项决定、负责人以及约定的完成日期。",
+          "note": "Meetings · Recording decisions",
+          "translations": {
+            "en": { "text": "Please circulate the minutes within two hours of the meeting, clearly documenting every decision, the person accountable for it, and the agreed completion date.", "hints": ["circulate the minutes", "accountable"] },
+            "ja": { "text": "会議終了後二時間以内に議事録を共有し、各決定事項、担当責任者、および合意した完了期日を明確に記載してください。", "hints": ["議事録", "担当責任者"] }
+          }
+        },
+        {
+          "id": "bc01-004",
+          "source": "在评估这个方案之前，我想先确认我们的成本假设是否仍然有效，因为原材料价格最近发生了明显变化。",
+          "note": "Meetings · Testing assumptions",
+          "translations": {
+            "en": { "text": "Before evaluating this proposal, I would like to confirm whether our cost assumptions remain valid, given the substantial recent movement in raw-material prices.", "hints": ["cost assumptions", "raw-material prices"] },
+            "ja": { "text": "この提案を評価する前に、原材料価格が最近大きく変動していることを踏まえ、当社のコスト前提が依然として妥当か確認したいと思います。", "hints": ["コスト前提", "妥当"] }
+          }
+        },
+        {
+          "id": "bc01-005",
+          "source": "我们不必在每个细节上达成一致，但必须就前进方向以及各自承担的责任形成明确共识。",
+          "note": "Meetings · Building consensus",
+          "translations": {
+            "en": { "text": "We do not need unanimity on every detail, but we must establish a clear consensus on the way forward and on the responsibilities each party will assume.", "hints": ["clear consensus", "responsibilities"] },
+            "ja": { "text": "すべての細部について全員一致する必要はありませんが、今後の方向性と各自が負う責任については明確な合意を形成しなければなりません。", "hints": ["全員一致", "明確な合意"] }
+          }
+        },
+        {
+          "id": "bc01-006",
+          "source": "与其根据直觉立即做出决定，不如先审查上个季度的数据，看看这些数字是否支持我们的判断。",
+          "note": "Meetings · Evidence-based decisions",
+          "translations": {
+            "en": { "text": "Rather than making an immediate decision on intuition alone, we should review last quarter's data and determine whether the figures genuinely support our judgement.", "hints": ["intuition alone", "support our judgement"] },
+            "ja": { "text": "直感だけで即断するのではなく、まず前四半期のデータを精査し、数値が本当に我々の判断を裏付けているかを確認すべきです。", "hints": ["即断", "裏付けている"] }
+          }
+        },
+        {
+          "id": "bc01-007",
+          "source": "虽然主要利益相关者原则上支持这项计划，但他们仍然担心实施速度可能会影响日常运营。",
+          "note": "Meetings · Stakeholder concerns",
+          "translations": {
+            "en": { "text": "Although the principal stakeholders support the initiative in principle, they remain concerned that the pace of implementation could disrupt day-to-day operations.", "hints": ["in principle", "day-to-day operations"] },
+            "ja": { "text": "主要な利害関係者はこの取り組みに原則として賛成していますが、導入の速さが日常業務に支障を来す可能性を依然として懸念しています。", "hints": ["原則として", "日常業務"] }
+          }
+        },
+        {
+          "id": "bc01-008",
+          "source": "会议结束前，请大家确认自己的行动事项，如有无法按期完成的风险，应当立即提出。",
+          "note": "Meetings · Assigning actions",
+          "translations": {
+            "en": { "text": "Before we close the meeting, please confirm your respective action items and raise immediately any risk that might prevent you from meeting the agreed deadline.", "hints": ["action items", "agreed deadline"] },
+            "ja": { "text": "会議を終える前に、各自のアクション項目を確認し、合意した期限までに完了できない恐れがある場合は、直ちに申し出てください。", "hints": ["アクション項目", "合意した期限"] }
+          }
+        },
+        {
+          "id": "bc01-009",
+          "source": "由于前一个议题超出了预定时间，我们需要压缩后面的讨论，但不能因此忽略关键风险。",
+          "note": "Meetings · Managing time",
+          "translations": {
+            "en": { "text": "Because the previous item ran beyond its allotted time, we will need to shorten the remaining discussion without, however, overlooking any material risks.", "hints": ["allotted time", "material risks"] },
+            "ja": { "text": "前の議題が予定時間を超過したため、残りの討議を短縮する必要がありますが、それによって重大なリスクを見落としてはなりません。", "hints": ["予定時間", "重大なリスク"] }
+          }
+        },
+        {
+          "id": "bc01-010",
+          "source": "如果会议既没有明确议程，也没有需要集体决定的事项，那么发送书面更新可能更有效率。",
+          "note": "Meetings · Choosing the medium",
+          "translations": {
+            "en": { "text": "If there is neither a clear agenda nor an issue requiring a collective decision, a written update may be a more efficient use of everyone's time.", "hints": ["clear agenda", "collective decision"] },
+            "ja": { "text": "明確な議題も、全員で判断すべき事項もないのであれば、会議を開くより書面で進捗を共有する方が、全員の時間を有効に使えます。", "hints": ["書面で進捗", "有効に使えます"] }
+          }
+        },
+        {
+          "id": "bc01-011",
+          "source": "收到客户投诉后，我们应先确认对方的不便和担忧，然后再说明事实以及我们准备采取的补救措施。",
+          "note": "Communication · Handling complaints",
+          "translations": {
+            "en": { "text": "When responding to a customer complaint, we should first acknowledge the inconvenience and concern caused before setting out the facts and the remedial action we intend to take.", "hints": ["acknowledge the inconvenience", "remedial action"] },
+            "ja": { "text": "顧客からの苦情に対応する際は、まず相手が被った不便と懸念を受け止めたうえで、事実関係と当社が講じる是正措置を説明すべきです。", "hints": ["受け止めた", "是正措置"] }
+          }
+        },
+        {
+          "id": "bc01-012",
+          "source": "一封有效的商务邮件应当简要交代背景，明确说明需要对方采取的行动，并给出合理的回复期限。",
+          "note": "Communication · Writing effective email",
+          "translations": {
+            "en": { "text": "An effective business email should provide concise context, specify the action required of the recipient, and state a reasonable deadline for the response.", "hints": ["concise context", "reasonable deadline"] },
+            "ja": { "text": "効果的なビジネスメールでは、背景を簡潔に示し、相手に求める対応を明確にしたうえで、妥当な回答期限を提示する必要があります。", "hints": ["背景を簡潔", "回答期限"] }
+          }
+        },
+        {
+          "id": "bc01-013",
+          "source": "这个问题已经超出项目团队的权限范围，因此我会将其上报给能够批准额外预算的管理层。",
+          "note": "Communication · Escalating issues",
+          "translations": {
+            "en": { "text": "As this issue falls outside the project team's authority, I will escalate it to the management level empowered to approve the additional expenditure.", "hints": ["falls outside", "escalate it"] },
+            "ja": { "text": "この問題はプロジェクトチームの権限を超えているため、追加支出を承認できる経営層にエスカレーションします。", "hints": ["権限を超えて", "経営層"] }
+          }
+        },
+        {
+          "id": "bc01-014",
+          "source": "即使我们不同意对方的建议，也应当具体说明顾虑，而不是使用可能被理解为针对个人的语言。",
+          "note": "Communication · Disagreeing constructively",
+          "translations": {
+            "en": { "text": "Even when we disagree with a proposal, we should articulate our concerns precisely instead of using language that could reasonably be interpreted as a personal criticism.", "hints": ["articulate our concerns", "personal criticism"] },
+            "ja": { "text": "相手の提案に同意できない場合でも、個人への批判と受け取られかねない表現は避け、懸念点を具体的かつ正確に述べるべきです。", "hints": ["懸念点", "個人への批判"] }
+          }
+        },
+        {
+          "id": "bc01-015",
+          "source": "为了避免日后产生误解，我会用邮件确认我们刚才口头商定的价格、交付范围和付款条件。",
+          "note": "Communication · Confirming agreements",
+          "translations": {
+            "en": { "text": "To prevent any subsequent misunderstanding, I will confirm by email the price, scope of delivery, and payment terms that we have just agreed verbally.", "hints": ["subsequent misunderstanding", "agreed verbally"] },
+            "ja": { "text": "後日の誤解を防ぐため、先ほど口頭で合意した価格、納入範囲、および支払条件をメールで確認いたします。", "hints": ["口頭で合意", "支払条件"] }
+          }
+        },
+        {
+          "id": "bc01-016",
+          "source": "只有真正需要了解情况或参与决策的人才应被抄送，否则重要信息很容易淹没在无关邮件中。",
+          "note": "Communication · Using email responsibly",
+          "translations": {
+            "en": { "text": "Only those who genuinely need the information or have a role in the decision should be copied, lest essential messages be buried beneath irrelevant correspondence.", "hints": ["have a role", "irrelevant correspondence"] },
+            "ja": { "text": "情報を本当に必要とする人、または意思決定に関与する人だけをCCに入れなければ、重要な連絡が無関係なメールに埋もれてしまいます。", "hints": ["意思決定", "埋もれて"] }
+          }
+        },
+        {
+          "id": "bc01-017",
+          "source": "尽管我们还无法给出完整答复，但应先告知客户已经收到请求，并说明预计何时能够提供更新。",
+          "note": "Communication · Managing response time",
+          "translations": {
+            "en": { "text": "Although we are not yet in a position to provide a complete answer, we should acknowledge receipt of the request and indicate when the customer can expect an update.", "hints": ["acknowledge receipt", "expect an update"] },
+            "ja": { "text": "まだ完全な回答を提示できない場合でも、依頼を受領したことを顧客に伝え、いつ頃進捗を報告できるかを示すべきです。", "hints": ["受領した", "進捗を報告"] }
+          }
+        },
+        {
+          "id": "bc01-018",
+          "source": "包含敏感商业信息的文件必须通过获批的安全渠道发送，而不能作为普通邮件附件随意转发。",
+          "note": "Communication · Protecting information",
+          "translations": {
+            "en": { "text": "Documents containing commercially sensitive information must be transmitted through an approved secure channel rather than forwarded casually as ordinary email attachments.", "hints": ["commercially sensitive", "secure channel"] },
+            "ja": { "text": "機密性の高い商業情報を含む文書は、通常のメール添付として安易に転送せず、承認された安全な経路で送信しなければなりません。", "hints": ["機密性", "安全な経路"] }
+          }
+        },
+        {
+          "id": "bc01-019",
+          "source": "当信息可能引起焦虑时，管理者应尽早沟通已经确认的事实，同时坦诚说明哪些问题仍在调查。",
+          "note": "Communication · Communicating uncertainty",
+          "translations": {
+            "en": { "text": "When information is likely to cause anxiety, managers should communicate the verified facts early while being candid about which questions remain under investigation.", "hints": ["verified facts", "remain under investigation"] },
+            "ja": { "text": "不安を招く可能性のある情報については、管理者は確認済みの事実を早めに共有すると同時に、調査中の事項も率直に説明すべきです。", "hints": ["確認済みの事実", "率直に説明"] }
+          }
+        },
+        {
+          "id": "bc01-020",
+          "source": "如果一条信息可以用三句话清楚表达，就没有必要用充满术语的三页文件增加读者的理解负担。",
+          "note": "Communication · Writing clearly",
+          "translations": {
+            "en": { "text": "If a message can be conveyed clearly in three sentences, there is no justification for imposing a three-page, jargon-laden document on the reader.", "hints": ["conveyed clearly", "jargon-laden"] },
+            "ja": { "text": "三文で明確に伝えられる内容なら、専門用語だらけの三ページの文書を作り、読み手の理解に余計な負担をかける必要はありません。", "hints": ["明確に伝え", "余計な負担"] }
+          }
+        },
+        {
+          "id": "bc01-021",
+          "source": "任何超出原定范围的新要求都必须评估其对成本、进度和资源的影响，然后才能决定是否接受。",
+          "note": "Projects · Controlling scope",
+          "translations": {
+            "en": { "text": "Any new requirement falling outside the original scope must be assessed for its impact on cost, schedule, and resources before a decision is made to accept it.", "hints": ["original scope", "assessed for its impact"] },
+            "ja": { "text": "当初の範囲を超える新たな要件については、受け入れを決める前に、コスト、日程、およびリソースへの影響を評価しなければなりません。", "hints": ["当初の範囲", "影響を評価"] }
+          }
+        },
+        {
+          "id": "bc01-022",
+          "source": "由于设计团队必须等客户确认需求后才能开始工作，这项依赖关系可能成为整个计划的关键瓶颈。",
+          "note": "Projects · Managing dependencies",
+          "translations": {
+            "en": { "text": "Because the design team cannot begin until the client has confirmed the requirements, this dependency may become a critical bottleneck for the entire programme.", "hints": ["dependency", "critical bottleneck"] },
+            "ja": { "text": "顧客が要件を確定するまで設計チームは着手できないため、この依存関係が計画全体の重大なボトルネックになる可能性があります。", "hints": ["依存関係", "ボトルネック"] }
+          }
+        },
+        {
+          "id": "bc01-023",
+          "source": "如果关键里程碑必须延期，我们应立即说明原因、修订后的日期以及为减少影响而采取的措施。",
+          "note": "Projects · Reporting delays",
+          "translations": {
+            "en": { "text": "If a key milestone has to be postponed, we should communicate immediately the reason, the revised date, and the measures being taken to mitigate the impact.", "hints": ["key milestone", "mitigate the impact"] },
+            "ja": { "text": "重要なマイルストーンを延期せざるを得ない場合は、その理由、変更後の日程、影響を軽減するための対策を直ちに伝えるべきです。", "hints": ["マイルストーン", "影響を軽減"] }
+          }
+        },
+        {
+          "id": "bc01-024",
+          "source": "风险登记表只有在定期更新、明确负责人并记录实际缓解措施时，才是真正有用的管理工具。",
+          "note": "Projects · Maintaining risk registers",
+          "translations": {
+            "en": { "text": "A risk register becomes a useful management tool only when it is reviewed regularly, assigns clear ownership, and records concrete mitigation measures.", "hints": ["clear ownership", "mitigation measures"] },
+            "ja": { "text": "リスク登録簿は、定期的に見直され、責任者が明確で、具体的な軽減策が記録されて初めて有効な管理手段となります。", "hints": ["責任者", "具体的な軽減策"] }
+          }
+        },
+        {
+          "id": "bc01-025",
+          "source": "在全面推广之前先进行小规模试点，可以用较低成本验证核心假设并发现实施中的实际问题。",
+          "note": "Projects · Running pilots",
+          "translations": {
+            "en": { "text": "A small-scale pilot before full rollout allows us to validate the central assumptions and uncover practical implementation problems at relatively low cost.", "hints": ["small-scale pilot", "central assumptions"] },
+            "ja": { "text": "全面展開の前に小規模な試験導入を行えば、比較的低いコストで中核となる仮説を検証し、実施上の問題を把握できます。", "hints": ["試験導入", "仮説を検証"] }
+          }
+        },
+        {
+          "id": "bc01-026",
+          "source": "鉴于目前的人力限制，我们无法同时交付所有功能，因此必须根据客户价值和技术风险确定优先顺序。",
+          "note": "Projects · Prioritising resources",
+          "translations": {
+            "en": { "text": "Given our present staffing constraints, we cannot deliver every feature simultaneously and must therefore prioritise according to customer value and technical risk.", "hints": ["staffing constraints", "prioritise"] },
+            "ja": { "text": "現在の人員上の制約を考えると、すべての機能を同時に提供することはできないため、顧客価値と技術的リスクに基づいて優先順位を付ける必要があります。", "hints": ["人員上の制約", "優先順位"] }
+          }
+        },
+        {
+          "id": "bc01-027",
+          "source": "为了赶上一个人为设定的日期而牺牲基本质量，往往会在上线后产生更高的返工和支持成本。",
+          "note": "Projects · Protecting quality",
+          "translations": {
+            "en": { "text": "Compromising fundamental quality to meet an arbitrary date often results in substantially greater rework and support costs after launch.", "hints": ["fundamental quality", "rework"] },
+            "ja": { "text": "恣意的に設定された期日に間に合わせるため基本的な品質を犠牲にすると、導入後の手戻りやサポート費用がかえって大幅に増えることが少なくありません。", "hints": ["品質を犠牲", "手戻り"] }
+          }
+        },
+        {
+          "id": "bc01-028",
+          "source": "项目复盘的目的不是追究个人责任，而是了解系统为何允许问题发生，并防止同样的错误再次出现。",
+          "note": "Projects · Learning from failure",
+          "translations": {
+            "en": { "text": "The purpose of a project retrospective is not to assign personal blame but to understand why the system allowed the problem to occur and prevent its recurrence.", "hints": ["personal blame", "prevent its recurrence"] },
+            "ja": { "text": "プロジェクトの振り返りは個人の責任を追及するためではなく、なぜ仕組み上その問題が起こり得たのかを理解し、再発を防止するために行います。", "hints": ["責任を追及", "再発を防止"] }
+          }
+        },
+        {
+          "id": "bc01-029",
+          "source": "变更请求在获得批准之前，不应被视为承诺，因为每项变更都可能影响已确定的交付计划。",
+          "note": "Projects · Governing change",
+          "translations": {
+            "en": { "text": "A change request should not be treated as a commitment until it has been approved, since every alteration may affect the established delivery plan.", "hints": ["change request", "delivery plan"] },
+            "ja": { "text": "変更要求は承認されるまで確約として扱うべきではありません。どの変更も、確定済みの納入計画に影響を及ぼす可能性があるためです。", "hints": ["変更要求", "納入計画"] }
+          }
+        },
+        {
+          "id": "bc01-030",
+          "source": "只有当安全测试完成、支持团队准备就绪且回滚方案得到验证后，我们才应批准正式上线。",
+          "note": "Projects · Defining launch readiness",
+          "translations": {
+            "en": { "text": "We should approve the production launch only after security testing is complete, the support team is ready, and the rollback procedure has been validated.", "hints": ["production launch", "rollback procedure"] },
+            "ja": { "text": "セキュリティ試験が完了し、サポート体制が整い、切り戻し手順が検証された後に限り、本番稼働を承認すべきです。", "hints": ["本番稼働", "切り戻し手順"] }
+          }
+        },
+        {
+          "id": "bc01-031",
+          "source": "如果贵方能够承诺更大的年度采购量，我们可以考虑降低单价，但折扣必须与实际销量挂钩。",
+          "note": "Negotiation · Trading concessions",
+          "translations": {
+            "en": { "text": "If you can commit to a higher annual purchase volume, we may consider reducing the unit price, provided that the discount is tied to actual sales.", "hints": ["purchase volume", "unit price"] },
+            "ja": { "text": "年間購入量の増加を確約いただけるのであれば、単価の引き下げを検討できますが、割引は実際の販売数量に連動させる必要があります。", "hints": ["年間購入量", "単価"] }
+          }
+        },
+        {
+          "id": "bc01-032",
+          "source": "在接受对方的最后报价之前，我们必须比较其他可行选择，并判断拒绝协议的实际代价。",
+          "note": "Negotiation · Evaluating alternatives",
+          "translations": {
+            "en": { "text": "Before accepting the final offer, we must compare the viable alternatives and assess the real cost of walking away from the agreement.", "hints": ["viable alternatives", "walking away"] },
+            "ja": { "text": "最終提示を受け入れる前に、実行可能な代替案を比較し、合意を見送る場合の実質的な代償を評価しなければなりません。", "hints": ["代替案", "合意を見送る"] }
+          }
+        },
+        {
+          "id": "bc01-033",
+          "source": "谈判陷入僵局时，与其重复各自的立场，不如了解这些立场背后的商业利益和限制条件。",
+          "note": "Negotiation · Exploring interests",
+          "translations": {
+            "en": { "text": "When a negotiation reaches an impasse, it is more productive to explore the commercial interests and constraints behind each position than merely to repeat it.", "hints": ["reaches an impasse", "commercial interests"] },
+            "ja": { "text": "交渉が行き詰まったときは、互いの立場を繰り返すよりも、その背後にある事業上の利益と制約を把握する方が建設的です。", "hints": ["行き詰まった", "事業上の利益"] }
+          }
+        },
+        {
+          "id": "bc01-034",
+          "source": "合同中的任何模糊表述都应在签署前解决，因为双方日后可能会按照各自利益作出不同解释。",
+          "note": "Negotiation · Removing ambiguity",
+          "translations": {
+            "en": { "text": "Any ambiguity in the contract should be resolved before signature, as each party may later interpret the wording in accordance with its own interests.", "hints": ["ambiguity", "interpret the wording"] },
+            "ja": { "text": "契約書の曖昧な表現は署名前に解消すべきです。後になって双方が自らの利益に沿って異なる解釈をする恐れがあるためです。", "hints": ["曖昧な表現", "異なる解釈"] }
+          }
+        },
+        {
+          "id": "bc01-035",
+          "source": "延长付款期限可以缓解买方的现金流压力，但卖方需要通过价格或担保来补偿增加的风险。",
+          "note": "Negotiation · Payment terms",
+          "translations": {
+            "en": { "text": "Longer payment terms may ease the buyer's cash-flow pressure, but the seller must be compensated through pricing or security for the additional risk assumed.", "hints": ["cash-flow pressure", "additional risk"] },
+            "ja": { "text": "支払期限の延長は買い手の資金繰りを緩和しますが、売り手が負う追加リスクは、価格または担保によって補償される必要があります。", "hints": ["資金繰り", "追加リスク"] }
+          }
+        },
+        {
+          "id": "bc01-036",
+          "source": "除非对方提供足够的最低采购保证，否则我们不应授予可能限制未来增长的独家经营权。",
+          "note": "Negotiation · Exclusivity",
+          "translations": {
+            "en": { "text": "We should not grant exclusivity that could constrain future growth unless the other party provides a sufficient minimum-purchase commitment in return.", "hints": ["grant exclusivity", "minimum-purchase commitment"] },
+            "ja": { "text": "相手から十分な最低購入保証が得られない限り、将来の成長を制約しかねない独占権を付与すべきではありません。", "hints": ["最低購入保証", "独占権"] }
+          }
+        },
+        {
+          "id": "bc01-037",
+          "source": "当讨论变得情绪化时，暂时休会可以让双方重新评估方案，而不必在压力下作出不明智的让步。",
+          "note": "Negotiation · Managing deadlock",
+          "translations": {
+            "en": { "text": "When the discussion becomes emotional, a temporary adjournment allows both sides to reassess their options without making an ill-considered concession under pressure.", "hints": ["temporary adjournment", "concession"] },
+            "ja": { "text": "協議が感情的になった場合は、一度休会することで、双方が圧力に押されて軽率な譲歩をせず、選択肢を改めて検討できます。", "hints": ["一度休会", "軽率な譲歩"] }
+          }
+        },
+        {
+          "id": "bc01-038",
+          "source": "报价最低并不一定意味着成本最低，因为维护、培训和系统停机都会影响长期拥有成本。",
+          "note": "Negotiation · Total cost",
+          "translations": {
+            "en": { "text": "The lowest quoted price does not necessarily represent the lowest cost, since maintenance, training, and system downtime all contribute to the total cost of ownership.", "hints": ["quoted price", "total cost of ownership"] },
+            "ja": { "text": "提示価格が最も低くても、保守、研修、システム停止時間を含む総保有コストまで最小になるとは限りません。", "hints": ["提示価格", "総保有コスト"] }
+          }
+        },
+        {
+          "id": "bc01-039",
+          "source": "如果无法一次解决所有问题，我们可以先就争议较小的条款达成阶段性协议，再处理复杂事项。",
+          "note": "Negotiation · Phased agreement",
+          "translations": {
+            "en": { "text": "If every issue cannot be resolved at once, we can reach an interim agreement on the less contentious terms before addressing the more complex matters.", "hints": ["interim agreement", "contentious terms"] },
+            "ja": { "text": "すべての問題を一度に解決できない場合は、争いの少ない条件について暫定合意を形成してから、より複雑な事項に取り組むことができます。", "hints": ["暫定合意", "複雑な事項"] }
+          }
+        },
+        {
+          "id": "bc01-040",
+          "source": "一份好的协议不仅要在今天看来公平，还应当在市场条件发生变化时维持双方长期合作的动力。",
+          "note": "Negotiation · Long-term value",
+          "translations": {
+            "en": { "text": "A sound agreement should not only appear fair today but also preserve both parties' incentive to sustain the relationship as market conditions change.", "hints": ["sound agreement", "market conditions"] },
+            "ja": { "text": "良い合意とは、現時点で公平に見えるだけでなく、市場環境が変化しても双方が長期的な関係を維持する動機を保てるものです。", "hints": ["公平", "長期的な関係"] }
+          }
+        },
+        {
+          "id": "bc01-041",
+          "source": "在推荐产品之前，销售人员应当了解客户真正要解决的问题、预算限制以及内部审批流程。",
+          "note": "Sales · Qualifying needs",
+          "translations": {
+            "en": { "text": "Before recommending a product, a salesperson should understand the problem the customer actually needs to solve, the budget constraints, and the internal approval process.", "hints": ["budget constraints", "approval process"] },
+            "ja": { "text": "製品を提案する前に、営業担当者は、顧客が実際に解決したい課題、予算上の制約、および社内承認の流れを把握すべきです。", "hints": ["解決したい課題", "社内承認"] }
+          }
+        },
+        {
+          "id": "bc01-042",
+          "source": "有说服力的提案不应只是罗列产品功能，而要说明这些功能如何产生客户重视的可衡量结果。",
+          "note": "Sales · Framing value",
+          "translations": {
+            "en": { "text": "A persuasive proposal should do more than list product features; it should explain how those features produce measurable outcomes that the customer values.", "hints": ["persuasive proposal", "measurable outcomes"] },
+            "ja": { "text": "説得力のある提案は、製品機能を列挙するだけでなく、その機能が顧客の重視する測定可能な成果にどう結び付くかを説明すべきです。", "hints": ["説得力", "測定可能な成果"] }
+          }
+        },
+        {
+          "id": "bc01-043",
+          "source": "产品演示应围绕客户最重要的使用场景展开，而不是试图在有限时间内展示每一个功能。",
+          "note": "Sales · Tailoring demonstrations",
+          "translations": {
+            "en": { "text": "A product demonstration should centre on the customer's most important use cases rather than attempting to display every available feature within a limited period.", "hints": ["use cases", "available feature"] },
+            "ja": { "text": "製品デモは、限られた時間ですべての機能を見せようとするのではなく、顧客にとって最も重要な利用場面に焦点を当てるべきです。", "hints": ["利用場面", "焦点"] }
+          }
+        },
+        {
+          "id": "bc01-044",
+          "source": "每次客户会谈后都应及时跟进，总结已理解的需求、尚未解决的问题以及双方同意的下一步。",
+          "note": "Sales · Following up",
+          "translations": {
+            "en": { "text": "Every customer conversation should be followed promptly by a summary of the needs understood, the questions still outstanding, and the next steps agreed by both sides.", "hints": ["followed promptly", "still outstanding"] },
+            "ja": { "text": "顧客との面談後は速やかにフォローし、把握した要望、未解決の問題、および双方が合意した次の手順をまとめる必要があります。", "hints": ["速やかにフォロー", "未解決"] }
+          }
+        },
+        {
+          "id": "bc01-045",
+          "source": "客户的异议不应被视为拒绝，而应被当作信息，用来识别提案中尚未得到充分证明的部分。",
+          "note": "Sales · Handling objections",
+          "translations": {
+            "en": { "text": "A customer's objection should be treated not as a rejection but as information revealing which part of the proposal has not yet been sufficiently substantiated.", "hints": ["not as a rejection", "sufficiently substantiated"] },
+            "ja": { "text": "顧客の異議は拒絶ではなく、提案のどの部分がまだ十分に裏付けられていないかを示す情報として受け止めるべきです。", "hints": ["拒絶ではなく", "裏付けられて"] }
+          }
+        },
+        {
+          "id": "bc01-046",
+          "source": "保留现有客户通常比获取新客户成本更低，因此售后体验应当被视为增长战略的一部分。",
+          "note": "Sales · Retaining customers",
+          "translations": {
+            "en": { "text": "Retaining an existing customer generally costs less than acquiring a new one, which is why the post-sale experience must form part of the growth strategy.", "hints": ["Retaining", "post-sale experience"] },
+            "ja": { "text": "既存顧客の維持は一般に新規顧客の獲得より費用がかからないため、購入後の体験も成長戦略の一部として捉える必要があります。", "hints": ["既存顧客の維持", "成長戦略"] }
+          }
+        },
+        {
+          "id": "bc01-047",
+          "source": "客户关系系统中的记录必须及时且准确，否则销售预测和后续沟通都会建立在错误信息之上。",
+          "note": "Sales · Maintaining CRM data",
+          "translations": {
+            "en": { "text": "Records in the customer relationship system must be timely and accurate; otherwise, both the sales forecast and subsequent communication will rest on faulty information.", "hints": ["timely and accurate", "faulty information"] },
+            "ja": { "text": "顧客管理システムの記録は適時かつ正確でなければならず、そうでなければ売上予測もその後の連絡も誤った情報に基づくことになります。", "hints": ["適時かつ正確", "売上予測"] }
+          }
+        },
+        {
+          "id": "bc01-048",
+          "source": "为了赢得订单而承诺团队无法可靠交付的结果，最终会损害客户信任和公司的长期声誉。",
+          "note": "Sales · Making credible promises",
+          "translations": {
+            "en": { "text": "Promising an outcome that the team cannot reliably deliver may win an order, but it will ultimately damage customer trust and the company's long-term reputation.", "hints": ["reliably deliver", "long-term reputation"] },
+            "ja": { "text": "受注のためにチームが確実に実現できない成果を約束すれば、一時的に契約を得ても、最終的には顧客の信頼と会社の長期的な評判を損ないます。", "hints": ["確実に実現", "顧客の信頼"] }
+          }
+        },
+        {
+          "id": "bc01-049",
+          "source": "当客户决定终止合同时，我们应系统收集原因，因为流失反馈往往能揭示重复出现的服务问题。",
+          "note": "Sales · Learning from churn",
+          "translations": {
+            "en": { "text": "When a customer chooses to terminate a contract, we should capture the reasons systematically, as churn feedback often exposes recurring weaknesses in the service.", "hints": ["capture the reasons", "recurring weaknesses"] },
+            "ja": { "text": "顧客が契約終了を選んだ場合は、その理由を体系的に収集すべきです。解約時の意見から、サービス上の繰り返される弱点が明らかになることが多いためです。", "hints": ["体系的に収集", "繰り返される弱点"] }
+          }
+        },
+        {
+          "id": "bc01-050",
+          "source": "向现有客户推荐更多服务之前，我们必须确认当前产品已经实现了承诺价值，并获得了关键使用者的认可。",
+          "note": "Sales · Expanding accounts",
+          "translations": {
+            "en": { "text": "Before proposing additional services to an existing customer, we must confirm that the current product has delivered the promised value and earned the support of key users.", "hints": ["promised value", "key users"] },
+            "ja": { "text": "既存顧客に追加サービスを提案する前に、現在の製品が約束した価値を実現し、主要利用者の支持を得ていることを確認しなければなりません。", "hints": ["約束した価値", "主要利用者"] }
+          }
+        },
+        {
+          "id": "bc01-051",
+          "source": "本月的实际支出明显高于预算，我们需要区分一次性费用和可能持续到年底的结构性超支。",
+          "note": "Finance · Analysing variance",
+          "translations": {
+            "en": { "text": "Actual expenditure this month is materially above budget, and we need to distinguish one-off costs from structural overspending that may continue through year-end.", "hints": ["materially above budget", "structural overspending"] },
+            "ja": { "text": "今月の実支出は予算を大幅に上回っているため、一時的な費用と年末まで続く可能性のある構造的な超過支出を区別する必要があります。", "hints": ["予算を大幅", "超過支出"] }
+          }
+        },
+        {
+          "id": "bc01-052",
+          "source": "任何预测都应清楚列出关键假设，这样当实际结果偏离时，我们才能判断究竟是哪项判断出现了问题。",
+          "note": "Finance · Making forecasts",
+          "translations": {
+            "en": { "text": "Every forecast should state its critical assumptions explicitly so that, when actual results diverge, we can identify which underlying judgement proved incorrect.", "hints": ["critical assumptions", "actual results diverge"] },
+            "ja": { "text": "予測では重要な前提を明示し、実績が予測から外れた際に、どの基礎判断が誤っていたのかを特定できるようにすべきです。", "hints": ["重要な前提", "実績が予測から外れた"] }
+          }
+        },
+        {
+          "id": "bc01-053",
+          "source": "一家企业即使账面盈利，也可能因为客户付款过慢而缺少支付工资和供应商账款所需的现金。",
+          "note": "Finance · Managing cash flow",
+          "translations": {
+            "en": { "text": "A company may be profitable on paper yet lack the cash required to pay salaries and suppliers if its customers settle their invoices too slowly.", "hints": ["profitable on paper", "settle their invoices"] },
+            "ja": { "text": "帳簿上は利益が出ている企業でも、顧客からの入金が遅ければ、給与や仕入先への支払いに必要な現金が不足することがあります。", "hints": ["帳簿上", "現金が不足"] }
+          }
+        },
+        {
+          "id": "bc01-054",
+          "source": "费用审批流程应当与金额和风险相匹配，既要防止不当支出，也不能让正常业务因手续而停滞。",
+          "note": "Finance · Approving expenses",
+          "translations": {
+            "en": { "text": "The expense-approval process should be proportionate to value and risk, preventing improper expenditure without causing ordinary business to stall under excessive procedure.", "hints": ["proportionate", "improper expenditure"] },
+            "ja": { "text": "経費承認の手続きは金額とリスクに見合うものとし、不適切な支出を防ぎつつ、過度な手続きで通常業務を停滞させないようにすべきです。", "hints": ["リスクに見合う", "通常業務"] }
+          }
+        },
+        {
+          "id": "bc01-055",
+          "source": "评估投资回报时，除了短期收入，还应考虑节省的时间、降低的风险以及未来扩展能力。",
+          "note": "Finance · Evaluating return",
+          "translations": {
+            "en": { "text": "When evaluating return on investment, we should consider not only near-term revenue but also time saved, risk reduced, and the capacity created for future expansion.", "hints": ["return on investment", "future expansion"] },
+            "ja": { "text": "投資収益を評価する際は、短期的な売上だけでなく、時間の節約、リスクの低減、将来の拡張余地も考慮すべきです。", "hints": ["投資収益", "拡張余地"] }
+          }
+        },
+        {
+          "id": "bc01-056",
+          "source": "如果收入以外币结算而大部分成本以本币支付，汇率波动可能显著改变合同的实际利润。",
+          "note": "Finance · Currency exposure",
+          "translations": {
+            "en": { "text": "Where revenue is received in a foreign currency while most costs are paid locally, exchange-rate movements can materially alter the contract's realised margin.", "hints": ["exchange-rate movements", "realised margin"] },
+            "ja": { "text": "収入を外貨で受け取り、費用の大半を自国通貨で支払う場合、為替変動によって契約の実際の利益率が大きく変わる可能性があります。", "hints": ["為替変動", "利益率"] }
+          }
+        },
+        {
+          "id": "bc01-057",
+          "source": "每笔重要交易都必须保留清晰的审计记录，以便独立人员能够理解谁在何时基于什么理由批准了它。",
+          "note": "Finance · Maintaining audit trails",
+          "translations": {
+            "en": { "text": "Every material transaction must leave a clear audit trail enabling an independent person to understand who approved it, when, and on what basis.", "hints": ["material transaction", "audit trail"] },
+            "ja": { "text": "重要な取引については、誰が、いつ、どのような根拠で承認したかを第三者が理解できる明確な監査記録を残さなければなりません。", "hints": ["第三者", "監査記録"] }
+          }
+        },
+        {
+          "id": "bc01-058",
+          "source": "削减成本不应损害使公司具有竞争力的核心能力，否则短期节省可能造成更大的长期损失。",
+          "note": "Finance · Cutting costs wisely",
+          "translations": {
+            "en": { "text": "Cost reduction should not weaken the core capabilities that make the company competitive, or short-term savings may create far greater long-term losses.", "hints": ["core capabilities", "short-term savings"] },
+            "ja": { "text": "コスト削減によって企業の競争力を支える中核能力を損なえば、短期的な節約がはるかに大きな長期損失を招く恐れがあります。", "hints": ["中核能力", "長期損失"] }
+          }
+        },
+        {
+          "id": "bc01-059",
+          "source": "预算不应只反映最可能发生的情况，还应包括在需求下降或成本突然上升时可采取的应对方案。",
+          "note": "Finance · Scenario planning",
+          "translations": {
+            "en": { "text": "A budget should reflect not only the most likely outcome but also the actions available if demand weakens or costs rise unexpectedly.", "hints": ["most likely outcome", "demand weakens"] },
+            "ja": { "text": "予算には最も可能性の高い結果だけでなく、需要が落ち込んだ場合や費用が急増した場合に取れる対応策も織り込むべきです。", "hints": ["需要が落ち込んだ", "対応策"] }
+          }
+        },
+        {
+          "id": "bc01-060",
+          "source": "逾期应收账款应尽早处理，因为拖延时间越长，客户全额付款的可能性通常就越低。",
+          "note": "Finance · Collecting receivables",
+          "translations": {
+            "en": { "text": "Overdue receivables should be addressed promptly because, as delay increases, the likelihood of the customer paying the balance in full generally declines.", "hints": ["Overdue receivables", "balance in full"] },
+            "ja": { "text": "延滞債権は早期に対応すべきです。時間が経つほど、顧客から全額を回収できる可能性は一般に低下するためです。", "hints": ["延滞債権", "全額を回収"] }
+          }
+        },
+        {
+          "id": "bc01-061",
+          "source": "过度依赖单一供应商会使企业面临中断风险，因此关键物料应当建立经过验证的替代来源。",
+          "note": "Operations · Diversifying supply",
+          "translations": {
+            "en": { "text": "Excessive dependence on a single supplier exposes the business to disruption, so critical materials should have qualified alternative sources.", "hints": ["single supplier", "alternative sources"] },
+            "ja": { "text": "単一の供給業者に過度に依存すると事業中断のリスクが高まるため、重要資材については検証済みの代替調達先を確保すべきです。", "hints": ["過度に依存", "代替調達先"] }
+          }
+        },
+        {
+          "id": "bc01-062",
+          "source": "库存过少可能导致缺货和销售损失，而库存过多则会占用现金并增加仓储和报废成本。",
+          "note": "Operations · Balancing inventory",
+          "translations": {
+            "en": { "text": "Too little inventory can cause stockouts and lost sales, whereas too much ties up cash and increases storage and obsolescence costs.", "hints": ["stockouts", "ties up cash"] },
+            "ja": { "text": "在庫が少なすぎれば欠品と販売機会の損失を招き、多すぎれば資金が固定され、保管費用や陳腐化損失が増加します。", "hints": ["欠品", "資金が固定"] }
+          }
+        },
+        {
+          "id": "bc01-063",
+          "source": "安全库存水平应根据需求波动和补货时间设定，而不是简单沿用多年未审查的固定数字。",
+          "note": "Operations · Setting safety stock",
+          "translations": {
+            "en": { "text": "Safety-stock levels should reflect demand variability and replenishment lead times rather than an arbitrary figure carried forward without review for years.", "hints": ["demand variability", "replenishment lead times"] },
+            "ja": { "text": "安全在庫の水準は、長年見直されていない固定値を踏襲するのではなく、需要の変動と補充までの期間に基づいて設定すべきです。", "hints": ["安全在庫", "需要の変動"] }
+          }
+        },
+        {
+          "id": "bc01-064",
+          "source": "采购决策不应只比较价格，还要评估质量、交付可靠性、服务能力以及供应商的财务稳定性。",
+          "note": "Operations · Selecting suppliers",
+          "translations": {
+            "en": { "text": "Procurement decisions should compare not merely price but also quality, delivery reliability, service capability, and the supplier's financial stability.", "hints": ["delivery reliability", "financial stability"] },
+            "ja": { "text": "調達判断では価格だけでなく、品質、納期の信頼性、サービス能力、および供給業者の財務的安定性も評価する必要があります。", "hints": ["納期の信頼性", "財務的安定性"] }
+          }
+        },
+        {
+          "id": "bc01-065",
+          "source": "发现质量缺陷后，仅仅更换有问题的产品是不够的，还必须查明并消除导致缺陷的根本原因。",
+          "note": "Operations · Root-cause analysis",
+          "translations": {
+            "en": { "text": "When a quality defect is discovered, replacing the affected product is insufficient; we must also identify and eliminate the root cause of the failure.", "hints": ["quality defect", "root cause"] },
+            "ja": { "text": "品質不良が見つかった場合、該当製品を交換するだけでは不十分であり、不良を引き起こした根本原因を特定して取り除く必要があります。", "hints": ["品質不良", "根本原因"] }
+          }
+        },
+        {
+          "id": "bc01-066",
+          "source": "物流应急计划必须明确在主要运输路线中断时，谁有权启用替代承运商以及由谁承担额外费用。",
+          "note": "Operations · Logistics continuity",
+          "translations": {
+            "en": { "text": "A logistics contingency plan must specify who may activate an alternative carrier if the primary route is disrupted and who will bear the additional cost.", "hints": ["contingency plan", "alternative carrier"] },
+            "ja": { "text": "物流の緊急対応計画では、主要輸送経路が途絶した場合に、誰が代替運送業者を起用でき、追加費用を誰が負担するかを明確にする必要があります。", "hints": ["緊急対応計画", "代替運送業者"] }
+          }
+        },
+        {
+          "id": "bc01-067",
+          "source": "销售团队只有获得现实且及时更新的交付周期，才能向客户作出公司真正能够兑现的承诺。",
+          "note": "Operations · Quoting lead times",
+          "translations": {
+            "en": { "text": "The sales team can make commitments the company is able to honour only when it receives realistic and regularly updated delivery lead times.", "hints": ["commitments", "delivery lead times"] },
+            "ja": { "text": "営業チームが会社として履行可能な約束を顧客にするには、現実的で随時更新された納期情報を得る必要があります。", "hints": ["履行可能", "納期情報"] }
+          }
+        },
+        {
+          "id": "bc01-068",
+          "source": "标准作业程序既要足够详细以确保一致性，也要允许经验丰富的员工在异常情况下运用专业判断。",
+          "note": "Operations · Standardising work",
+          "translations": {
+            "en": { "text": "A standard operating procedure should be detailed enough to ensure consistency while allowing experienced staff to exercise professional judgement in exceptional circumstances.", "hints": ["ensure consistency", "professional judgement"] },
+            "ja": { "text": "標準作業手順は一貫性を確保できるほど詳細である一方、例外的な状況では経験豊富な社員が専門的判断を下せる余地も必要です。", "hints": ["一貫性", "専門的判断"] }
+          }
+        },
+        {
+          "id": "bc01-069",
+          "source": "在增加整个流程的人手之前，我们应先找出限制产出的具体环节，因为其他地方的投入可能不会提高总产量。",
+          "note": "Operations · Finding bottlenecks",
+          "translations": {
+            "en": { "text": "Before adding staff across the process, we should identify the precise stage constraining output, since investment elsewhere may not increase total capacity.", "hints": ["constraining output", "total capacity"] },
+            "ja": { "text": "工程全体に人員を追加する前に、産出量を制約している具体的な段階を特定すべきです。他の場所への投入では総生産能力が上がらない可能性があります。", "hints": ["制約している", "総生産能力"] }
+          }
+        },
+        {
+          "id": "bc01-070",
+          "source": "供应商不仅要满足价格和质量要求，还必须证明其劳动条件和环境实践符合我们的标准。",
+          "note": "Operations · Responsible sourcing",
+          "translations": {
+            "en": { "text": "Suppliers must meet not only our price and quality requirements but also demonstrate that their labour conditions and environmental practices comply with our standards.", "hints": ["labour conditions", "comply with"] },
+            "ja": { "text": "供給業者は価格と品質の要件を満たすだけでなく、労働条件と環境面の取り組みが当社基準に適合していることも証明しなければなりません。", "hints": ["労働条件", "適合している"] }
+          }
+        },
+        {
+          "id": "bc01-071",
+          "source": "职位描述应明确说明预期成果和必要能力，而不是列出一长串新员工入职后才会理解的内部任务。",
+          "note": "People · Defining roles",
+          "translations": {
+            "en": { "text": "A job description should define the expected outcomes and essential capabilities rather than list internal tasks that a new employee cannot understand before joining.", "hints": ["expected outcomes", "essential capabilities"] },
+            "ja": { "text": "職務記述書には、入社前には理解しにくい社内業務を長々と並べるのではなく、期待される成果と必要不可欠な能力を明記すべきです。", "hints": ["期待される成果", "必要不可欠な能力"] }
+          }
+        },
+        {
+          "id": "bc01-072",
+          "source": "结构化面试让所有候选人回答与岗位相关的相同核心问题，从而减少主观印象对录用决定的影响。",
+          "note": "People · Interviewing fairly",
+          "translations": {
+            "en": { "text": "Structured interviews ask every candidate the same core, job-related questions, thereby reducing the influence of subjective impressions on hiring decisions.", "hints": ["Structured interviews", "subjective impressions"] },
+            "ja": { "text": "構造化面接では、すべての候補者に職務に関連する同じ主要質問を行うため、採用判断に対する主観的印象の影響を減らせます。", "hints": ["構造化面接", "主観的印象"] }
+          }
+        },
+        {
+          "id": "bc01-073",
+          "source": "有效的入职培训不仅提供信息，还应帮助新员工建立完成工作所需的人际关系和实际信心。",
+          "note": "People · Onboarding well",
+          "translations": {
+            "en": { "text": "Effective onboarding does more than provide information; it helps new employees build the relationships and practical confidence required to perform their roles.", "hints": ["Effective onboarding", "practical confidence"] },
+            "ja": { "text": "効果的な入社研修は情報を提供するだけでなく、新入社員が業務遂行に必要な人間関係と実践的な自信を築けるよう支援します。", "hints": ["入社研修", "実践的な自信"] }
+          }
+        },
+        {
+          "id": "bc01-074",
+          "source": "反馈应针对可以观察和改变的行为，并说明其影响，而不能简单给某人的性格贴上负面标签。",
+          "note": "People · Giving feedback",
+          "translations": {
+            "en": { "text": "Feedback should address observable, changeable behaviour and explain its impact rather than attach a negative label to someone's personality.", "hints": ["observable", "explain its impact"] },
+            "ja": { "text": "フィードバックでは、人格に否定的なレッテルを貼るのではなく、観察できて改善可能な行動を取り上げ、その影響を説明すべきです。", "hints": ["改善可能な行動", "その影響"] }
+          }
+        },
+        {
+          "id": "bc01-075",
+          "source": "绩效目标必须具体且可以衡量，但也要允许员工在业务环境变化时与管理者协商调整。",
+          "note": "People · Setting objectives",
+          "translations": {
+            "en": { "text": "Performance objectives must be specific and measurable while remaining open to revision with the manager when business circumstances materially change.", "hints": ["specific and measurable", "open to revision"] },
+            "ja": { "text": "業績目標は具体的かつ測定可能である必要がありますが、事業環境が大きく変化した場合には、上司と協議して修正できる余地も必要です。", "hints": ["測定可能", "協議して修正"] }
+          }
+        },
+        {
+          "id": "bc01-076",
+          "source": "培训只有在员工能够把所学内容应用到实际工作，并得到经理持续支持时，才会产生持久价值。",
+          "note": "People · Making training stick",
+          "translations": {
+            "en": { "text": "Training creates lasting value only when employees can apply what they have learned to real work and receive continuing support from their managers.", "hints": ["lasting value", "continuing support"] },
+            "ja": { "text": "研修が持続的な価値を生むのは、社員が学んだ内容を実務に応用でき、上司から継続的な支援を受けられる場合に限られます。", "hints": ["実務に応用", "継続的な支援"] }
+          }
+        },
+        {
+          "id": "bc01-077",
+          "source": "继任计划不应只关注高管职位，还要识别任何因关键人员突然离职而可能中断的重要业务。",
+          "note": "People · Succession planning",
+          "translations": {
+            "en": { "text": "Succession planning should extend beyond executive roles to identify any critical operation that could be disrupted by the unexpected departure of a key person.", "hints": ["Succession planning", "unexpected departure"] },
+            "ja": { "text": "後継者計画は経営幹部だけを対象とせず、重要人物の突然の離職によって中断しかねないあらゆる重要業務を特定すべきです。", "hints": ["後継者計画", "突然の離職"] }
+          }
+        },
+        {
+          "id": "bc01-078",
+          "source": "长期依赖少数高绩效员工通过加班弥补资源不足，会增加倦怠、离职和操作失误的风险。",
+          "note": "People · Preventing burnout",
+          "translations": {
+            "en": { "text": "Relying indefinitely on a few high performers to compensate for inadequate resources through overtime increases the risk of burnout, turnover, and operational error.", "hints": ["inadequate resources", "burnout"] },
+            "ja": { "text": "少数の高業績者が残業で人員不足を補う状態に長期間依存すると、燃え尽き、離職、および業務上のミスのリスクが高まります。", "hints": ["人員不足", "燃え尽き"] }
+          }
+        },
+        {
+          "id": "bc01-079",
+          "source": "混合办公政策应根据工作成果和协作需要来设计，而不是把员工坐在办公室的时间误认为生产力。",
+          "note": "People · Managing hybrid work",
+          "translations": {
+            "en": { "text": "A hybrid-work policy should be designed around outcomes and collaboration needs rather than mistaking time spent visibly in the office for productivity.", "hints": ["collaboration needs", "for productivity"] },
+            "ja": { "text": "ハイブリッド勤務の方針は、成果と協働の必要性に基づいて設計し、社員がオフィスで目に見える時間を生産性と取り違えないようにすべきです。", "hints": ["協働", "生産性"] }
+          }
+        },
+        {
+          "id": "bc01-080",
+          "source": "调解团队冲突时，管理者应让各方分别说明事实、影响和需要，然后帮助他们达成可执行的约定。",
+          "note": "People · Resolving conflict",
+          "translations": {
+            "en": { "text": "When mediating team conflict, a manager should ask each party to describe the facts, impact, and needs before helping them reach a workable agreement.", "hints": ["mediating", "workable agreement"] },
+            "ja": { "text": "チーム内の対立を仲裁する際、管理者は各当事者に事実、影響、要望を説明させたうえで、実行可能な合意に達するよう支援すべきです。", "hints": ["対立を仲裁", "実行可能な合意"] }
+          }
+        },
+        {
+          "id": "bc01-081",
+          "source": "竞争分析不应只是列出对手的功能，还要解释他们服务哪些客户、如何赚钱以及优势是否能够持续。",
+          "note": "Strategy · Understanding competitors",
+          "translations": {
+            "en": { "text": "Competitive analysis should do more than list rivals' features; it should explain whom they serve, how they make money, and whether their advantages are defensible.", "hints": ["Competitive analysis", "advantages are defensible"] },
+            "ja": { "text": "競合分析では相手の機能を列挙するだけでなく、どの顧客に価値を提供し、どのように収益を上げ、その優位性が持続可能かを説明すべきです。", "hints": ["競合分析", "持続可能"] }
+          }
+        },
+        {
+          "id": "bc01-082",
+          "source": "选择一个投资项目意味着放弃其他机会，因此决策时必须把被放弃方案的潜在价值计算在内。",
+          "note": "Strategy · Opportunity cost",
+          "translations": {
+            "en": { "text": "Choosing one investment means forgoing other opportunities, so the potential value of the best rejected alternative must be considered in the decision.", "hints": ["forgoing", "rejected alternative"] },
+            "ja": { "text": "一つの投資を選ぶことは他の機会を断念することでもあるため、採用しなかった最善案の潜在価値も意思決定に含めなければなりません。", "hints": ["機会を断念", "潜在価値"] }
+          }
+        },
+        {
+          "id": "bc01-083",
+          "source": "短期目标可以推动执行，但如果奖励机制鼓励员工牺牲客户关系或产品质量，长期战略就会受到损害。",
+          "note": "Strategy · Aligning incentives",
+          "translations": {
+            "en": { "text": "Short-term targets can drive execution, but the long-term strategy will suffer if incentives encourage employees to sacrifice customer relationships or product quality.", "hints": ["drive execution", "long-term strategy"] },
+            "ja": { "text": "短期目標は実行を促しますが、報酬制度が顧客関係や製品品質の犠牲を奨励するなら、長期戦略は損なわれます。", "hints": ["短期目標", "長期戦略"] }
+          }
+        },
+        {
+          "id": "bc01-084",
+          "source": "进入新市场之前，公司必须验证当地客户需求，并调整产品、价格和销售方式以适应具体环境。",
+          "note": "Strategy · Entering markets",
+          "translations": {
+            "en": { "text": "Before entering a new market, a company must validate local demand and adapt its product, pricing, and route to market to the specific context.", "hints": ["validate local demand", "specific context"] },
+            "ja": { "text": "新市場に参入する前に、企業は現地需要を検証し、製品、価格設定、および販売経路をその市場特有の状況に適応させなければなりません。", "hints": ["現地需要", "販売経路"] }
+          }
+        },
+        {
+          "id": "bc01-085",
+          "source": "等待所有信息完全确定往往会错过机会，因此领导者必须在不确定性下做出可以随新证据调整的决定。",
+          "note": "Strategy · Deciding under uncertainty",
+          "translations": {
+            "en": { "text": "Waiting for complete certainty often means missing the opportunity, so leaders must make decisions under uncertainty that can be revised as new evidence emerges.", "hints": ["complete certainty", "new evidence emerges"] },
+            "ja": { "text": "すべてが確実になるまで待てば機会を逃すことが多いため、リーダーは不確実な状況で判断し、新たな証拠に応じて修正できるようにする必要があります。", "hints": ["機会を逃す", "不確実な状況"] }
+          }
+        },
+        {
+          "id": "bc01-086",
+          "source": "与其花几个月争论一个未经验证的想法，不如设计一个低成本实验，用真实客户行为来检验核心假设。",
+          "note": "Strategy · Testing assumptions",
+          "translations": {
+            "en": { "text": "Rather than debate an untested idea for months, we should design a low-cost experiment that tests the central assumption against real customer behaviour.", "hints": ["low-cost experiment", "customer behaviour"] },
+            "ja": { "text": "未検証の案を何か月も議論するより、実際の顧客行動に照らして中心的な仮説を検証する低コストの実験を設計すべきです。", "hints": ["未検証", "顧客行動"] }
+          }
+        },
+        {
+          "id": "bc01-087",
+          "source": "当一小部分客户贡献了大部分收入时，失去其中任何一家都可能对公司的现金流造成严重冲击。",
+          "note": "Strategy · Customer concentration",
+          "translations": {
+            "en": { "text": "When a small number of customers generate most of the revenue, the loss of any one of them may deliver a serious shock to the company's cash flow.", "hints": ["generate most", "serious shock"] },
+            "ja": { "text": "少数の顧客が売上の大半を占める場合、そのうち一社を失うだけでも会社の資金繰りに深刻な打撃を与える可能性があります。", "hints": ["売上の大半", "深刻な打撃"] }
+          }
+        },
+        {
+          "id": "bc01-088",
+          "source": "在批准重大投资之前，董事会应了解最坏的合理情景、可承受的损失以及出现哪些信号时必须退出。",
+          "note": "Strategy · Downside planning",
+          "translations": {
+            "en": { "text": "Before approving a major investment, the board should understand the plausible worst-case scenario, the loss it can tolerate, and the signals that would trigger an exit.", "hints": ["worst-case scenario", "trigger an exit"] },
+            "ja": { "text": "大規模投資を承認する前に、取締役会は合理的な最悪のシナリオ、許容できる損失、および撤退を判断する兆候を把握すべきです。", "hints": ["最悪のシナリオ", "撤退"] }
+          }
+        },
+        {
+          "id": "bc01-089",
+          "source": "如果项目的基本假设已被事实推翻，继续投入只因为已经花了很多钱，会让错误变得更加昂贵。",
+          "note": "Strategy · Avoiding sunk costs",
+          "translations": {
+            "en": { "text": "If the project's fundamental assumption has been disproved, continuing solely because substantial money has already been spent will merely make the mistake more expensive.", "hints": ["fundamental assumption", "already been spent"] },
+            "ja": { "text": "プロジェクトの根本的な前提が事実によって否定されたなら、すでに多額を投じたという理由だけで継続することは、誤りの代償をさらに大きくするだけです。", "hints": ["根本的な前提", "誤りの代償"] }
+          }
+        },
+        {
+          "id": "bc01-090",
+          "source": "战略只有在员工理解哪些选择最重要、哪些工作应当停止以及自己的日常决定如何支持目标时才有意义。",
+          "note": "Strategy · Communicating strategy",
+          "translations": {
+            "en": { "text": "A strategy becomes meaningful only when employees understand which choices matter most, what work should stop, and how their daily decisions support the objective.", "hints": ["becomes meaningful", "daily decisions"] },
+            "ja": { "text": "戦略が意味を持つのは、社員が何を最優先し、どの業務をやめ、自らの日々の判断が目標にどう貢献するかを理解している場合だけです。", "hints": ["最優先", "日々の判断"] }
+          }
+        },
+        {
+          "id": "bc01-091",
+          "source": "跨时区团队应轮换不便的会议时间，以免总是让同一地区的同事牺牲清晨或深夜。",
+          "note": "Global work · Sharing inconvenience",
+          "translations": {
+            "en": { "text": "Teams working across time zones should rotate inconvenient meeting times so that colleagues in the same region are not invariably asked to sacrifice early mornings or late nights.", "hints": ["rotate inconvenient", "invariably"] },
+            "ja": { "text": "時差のあるチームでは、不便な会議時間を持ち回りにし、同じ地域の社員ばかりが早朝や深夜を犠牲にしないようにすべきです。", "hints": ["持ち回り", "犠牲"] }
+          }
+        },
+        {
+          "id": "bc01-092",
+          "source": "在某些文化中，含蓄的保留意见可能代表强烈反对，因此国际团队不能只按字面理解回应。",
+          "note": "Global work · Reading context",
+          "translations": {
+            "en": { "text": "In some cultures, an indirectly expressed reservation may signal strong opposition, so international teams cannot safely interpret every response at face value.", "hints": ["expressed reservation", "at face value"] },
+            "ja": { "text": "文化によっては、遠回しな留保が強い反対を意味することがあるため、国際チームは返答を常に字面どおりに受け取るべきではありません。", "hints": ["遠回しな留保", "字面どおり"] }
+          }
+        },
+        {
+          "id": "bc01-093",
+          "source": "本地化并不是逐字翻译，而是调整语言、示例、设计和用户流程，使产品在当地环境中自然易用。",
+          "note": "Global work · Localising products",
+          "translations": {
+            "en": { "text": "Localisation is not word-for-word translation; it adapts language, examples, design, and user journeys so that the product feels natural in the local context.", "hints": ["word-for-word", "local context"] },
+            "ja": { "text": "ローカライズとは逐語訳ではなく、言語、事例、デザイン、利用の流れを調整し、製品を現地の環境で自然に使えるようにすることです。", "hints": ["逐語訳", "現地の環境"] }
+          }
+        },
+        {
+          "id": "bc01-094",
+          "source": "进入受监管市场之前，公司必须确认产品、合同和数据处理方式都符合当地法律，而不能假设国内做法自然适用。",
+          "note": "Compliance · Entering regulated markets",
+          "translations": {
+            "en": { "text": "Before entering a regulated market, a company must verify that its product, contracts, and data practices comply with local law rather than assume that domestic practice will transfer.", "hints": ["regulated market", "comply with local law"] },
+            "ja": { "text": "規制市場に参入する前に、国内の慣行がそのまま通用すると考えず、製品、契約、データ処理が現地法に適合することを確認しなければなりません。", "hints": ["規制市場", "現地法"] }
+          }
+        },
+        {
+          "id": "bc01-095",
+          "source": "企业只应收集提供服务真正需要的个人数据，并在不再需要时按照明确的保留政策安全删除。",
+          "note": "Compliance · Minimising data",
+          "translations": {
+            "en": { "text": "A business should collect only the personal data genuinely required to provide the service and delete it securely under a clear retention policy when it is no longer needed.", "hints": ["personal data", "retention policy"] },
+            "ja": { "text": "企業はサービス提供に本当に必要な個人データだけを収集し、不要になった時点で明確な保存方針に従って安全に削除すべきです。", "hints": ["個人データ", "保存方針"] }
+          }
+        },
+        {
+          "id": "bc01-096",
+          "source": "员工不得接受可能影响或看似影响其商业判断的贵重礼品，即使赠送者声称这只是当地习俗。",
+          "note": "Compliance · Gifts and hospitality",
+          "translations": {
+            "en": { "text": "Employees must not accept valuable gifts that could influence, or appear to influence, their commercial judgement, even when the giver describes them as local custom.", "hints": ["appear to influence", "commercial judgement"] },
+            "ja": { "text": "贈り主が現地の慣習だと説明しても、業務上の判断に影響を与える、または与えるように見える高価な贈答品を社員は受け取ってはなりません。", "hints": ["影響を与える", "贈答品"] }
+          }
+        },
+        {
+          "id": "bc01-097",
+          "source": "如果个人关系或经济利益可能妨碍客观决策，员工必须申报利益冲突并退出相关审批过程。",
+          "note": "Compliance · Conflicts of interest",
+          "translations": {
+            "en": { "text": "Where a personal relationship or financial interest could impair objective decision-making, the employee must disclose the conflict and withdraw from the relevant approval process.", "hints": ["financial interest", "disclose the conflict"] },
+            "ja": { "text": "個人的な関係や経済的利害が客観的な判断を妨げる可能性がある場合、社員は利益相反を申告し、関連する承認手続きから外れなければなりません。", "hints": ["客観的な判断", "利益相反"] }
+          }
+        },
+        {
+          "id": "bc01-098",
+          "source": "举报机制只有在员工相信问题会被认真调查，而且善意举报不会遭到报复时，才能发挥作用。",
+          "note": "Compliance · Speaking up",
+          "translations": {
+            "en": { "text": "A whistleblowing mechanism is effective only when employees trust that concerns will be investigated seriously and that good-faith reports will not invite retaliation.", "hints": ["investigated seriously", "retaliation"] },
+            "ja": { "text": "内部通報制度が機能するのは、懸念が真剣に調査され、善意の通報によって報復を受けないと社員が信頼できる場合に限られます。", "hints": ["内部通報制度", "報復"] }
+          }
+        },
+        {
+          "id": "bc01-099",
+          "source": "可持续发展目标必须配有一致的衡量方法和可核实的数据，否则公开承诺很容易沦为空洞宣传。",
+          "note": "Compliance · Sustainability claims",
+          "translations": {
+            "en": { "text": "Sustainability targets require consistent measurement and verifiable data; without them, public commitments can readily deteriorate into empty promotion.", "hints": ["verifiable data", "public commitments"] },
+            "ja": { "text": "持続可能性の目標には、一貫した測定方法と検証可能なデータが必要であり、それがなければ公約は容易に中身のない宣伝へと陥ります。", "hints": ["検証可能なデータ", "公約"] }
+          }
+        },
+        {
+          "id": "bc01-100",
+          "source": "危机发生时，公司应迅速说明已经确认的事实、正在采取的措施以及下次更新时间，而不能用猜测填补信息空白。",
+          "note": "Compliance · Crisis communication",
+          "translations": {
+            "en": { "text": "During a crisis, the company should state promptly what has been confirmed, what action is under way, and when the next update will follow rather than fill information gaps with speculation.", "hints": ["what has been confirmed", "speculation"] },
+            "ja": { "text": "危機発生時には、情報の空白を推測で埋めるのではなく、確認済みの事実、実施中の対応、および次回の更新時期を速やかに公表すべきです。", "hints": ["確認済みの事実", "推測"] }
+          }
+        }
+      ]
+    }
+  ],
+  "excerptCollections": []
+}
