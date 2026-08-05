@@ -49,3 +49,8 @@ export interface Progress {
   reviewed: string[]
   remembered: string[]
 }
+
+export interface CardPreferences {
+  favorites: string[]
+  ignored: string[]
+}
