@@ -4,16 +4,13 @@ import {
   ArrowRight,
   BookOpenText,
   Ban,
-  Check,
   Heart,
   Languages,
   LibraryBig,
-  RotateCcw,
   RefreshCw,
   SlidersHorizontal,
 } from 'lucide-react'
 import { studyData } from './data'
-import { useStudyProgress } from './hooks/useStudyProgress'
 import { useCardPreferences } from './hooks/useCardPreferences'
 import type {
   ExcerptCard,
@@ -28,6 +25,13 @@ const languageLabels: Record<TargetLanguage, string> = {
   en: 'English',
   ja: '日本語',
 }
+
+/** Furthest the pull indicator travels, so a long drag stops stretching the header. */
+const PULL_MAX_DISTANCE = 96
+/** Downward travel required to reshuffle the session on release. */
+const PULL_REFRESH_THRESHOLD = 72
+/** Travel past which the gesture is a drag, not a tap, so the trailing click is swallowed. */
+const PULL_TAP_SLOP = 10
 
 export function shuffleItems<T>(items: readonly T[]): T[] {
   const shuffled = [...items]
@@ -86,7 +90,7 @@ function TranslationPractice({ card, language, revealed, onReveal }: Translation
         type="button"
         className={`answer-area ${revealed ? 'is-revealed' : ''}`}
         onClick={onReveal}
-        aria-label={revealed ? undefined : 'Reveal the complete translation'}
+        aria-label={revealed ? 'Hide the complete translation' : 'Reveal the complete translation'}
         data-testid="translation-answer"
       >
         <p lang={language}>
@@ -119,7 +123,7 @@ function ExcerptPractice({ card, revealed, onReveal }: ExcerptPracticeProps) {
         type="button"
         className={`excerpt-answer ${revealed ? 'is-revealed' : ''}`}
         onClick={onReveal}
-        aria-label={revealed ? undefined : 'Reveal the complete excerpt'}
+        aria-label={revealed ? 'Hide the complete excerpt' : 'Reveal the complete excerpt'}
       >
         {revealed ? (
           <div className="poem-lines" lang="zh-CN">
@@ -138,12 +142,12 @@ function ExcerptPractice({ card, revealed, onReveal }: ExcerptPracticeProps) {
   )
 }
 
-function EmptyCollection({ showingFavorites, showingIgnored }: { showingFavorites: boolean; showingIgnored: boolean }) {
+function EmptyCollection({ showingFavorites, showingIgnored, showingIgnoredOnly }: { showingFavorites: boolean; showingIgnored: boolean; showingIgnoredOnly: boolean }) {
   return (
     <div className="empty-collection">
       <LibraryBig size={28} />
-      <h2>{showingFavorites ? 'No favorites in this collection' : showingIgnored ? 'No entries in this collection' : 'All entries are ignored'}</h2>
-      <p>{showingFavorites ? 'Turn off “Favorites only” in Study options to see every entry.' : showingIgnored ? 'Choose another collection to keep studying.' : 'Enable “Show ignored entries” in Study options to restore an entry.'}</p>
+      <h2>{showingFavorites ? 'No favorites in this collection' : showingIgnoredOnly ? 'No ignored entries in this collection' : 'No entries in this collection'}</h2>
+      <p>{showingFavorites ? 'Turn off “Favorites only” in Study options to see every entry.' : showingIgnoredOnly ? 'Turn off “Ignored only” in Study options to see every entry.' : showingIgnored ? 'Choose another collection to keep studying.' : 'Enable “Show ignored” in Study options to include ignored entries.'}</p>
     </div>
   )
 }
@@ -156,12 +160,14 @@ export default function App() {
   const [cardIndices, setCardIndices] = useState<Record<StudyMode, number>>({ translation: 0, excerpt: 0 })
   const [revealed, setRevealed] = useState(false)
   const [showIgnored, setShowIgnored] = useState(false)
+  const [ignoredOnly, setIgnoredOnly] = useState(false)
+  const [pinnedIgnoredId, setPinnedIgnoredId] = useState<string | null>(null)
   const [showFavorites, setShowFavorites] = useState(false)
   const [optionsOpen, setOptionsOpen] = useState(false)
   const [pullDistance, setPullDistance] = useState(0)
   const pullStartY = useRef<number | null>(null)
   const pullDistanceRef = useRef(0)
-  const { rate } = useStudyProgress()
+  const pullDraggedRef = useRef(false)
   const { preferences, toggleFavorite, toggleIgnored } = useCardPreferences()
 
   const collections = mode === 'translation'
@@ -171,7 +177,9 @@ export default function App() {
   const allCards = collection?.cards ?? []
   const cards = allCards.filter((card) => {
     const cardId = `${mode}:${collection?.id}:${card.id}`
-    return (showIgnored || !preferences.ignored.includes(cardId))
+    const isIgnored = preferences.ignored.includes(cardId)
+    return (!ignoredOnly || isIgnored)
+      && (showIgnored || !isIgnored || cardId === pinnedIgnoredId)
       && (!showFavorites || preferences.favorites.includes(cardId))
   })
   const currentIndex = Math.min(cardIndices[mode], Math.max(cards.length - 1, 0))
@@ -180,10 +188,17 @@ export default function App() {
 
   const goTo = (direction: -1 | 1) => {
     if (cards.length === 0) return
+    const nextCard = cards[(currentIndex + direction + cards.length) % cards.length]
+    const nextCards = pinnedIgnoredId
+      ? cards.filter((card) => `${mode}:${collection?.id}:${card.id}` !== pinnedIgnoredId)
+      : cards
+    const nextIndex = nextCards.findIndex((card) => card.id === nextCard.id)
+    if (nextIndex === -1) return
     setCardIndices((current) => ({
       ...current,
-      [mode]: (currentIndex + direction + cards.length) % cards.length,
+      [mode]: nextIndex,
     }))
+    setPinnedIgnoredId(null)
     setRevealed(false)
   }
 
@@ -200,40 +215,45 @@ export default function App() {
     setPullDistance(0)
   }
 
+  // Deliberately no setPointerCapture here: capturing on the shell retargets the
+  // trailing click to the shell, which stops every button underneath from firing.
+  // Touch pointers are implicitly captured to the pointerdown target anyway, so the
+  // move and up events still bubble back up to the shell.
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!event.isPrimary || event.pointerType !== 'touch') return
+    if (!event.isPrimary || event.pointerType !== 'touch' || optionsOpen) return
     pullStartY.current = event.clientY
-    event.currentTarget.setPointerCapture(event.pointerId)
+    pullDraggedRef.current = false
   }
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!event.isPrimary || event.pointerType !== 'touch' || pullStartY.current === null) return
-    const nextDistance = Math.min(96, Math.max(0, event.clientY - pullStartY.current))
+    const nextDistance = Math.min(PULL_MAX_DISTANCE, Math.max(0, event.clientY - pullStartY.current))
+    if (nextDistance >= PULL_TAP_SLOP) pullDraggedRef.current = true
     pullDistanceRef.current = nextDistance
     setPullDistance(nextDistance)
   }
 
   const handlePointerEnd = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== 'touch') return
-    if (pullDistanceRef.current >= 72) refreshSession()
+    if (pullDistanceRef.current >= PULL_REFRESH_THRESHOLD) refreshSession()
     else setPullDistance(0)
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId)
-    }
     pullStartY.current = null
     pullDistanceRef.current = 0
+  }
+
+  // A pull that ends over a button would otherwise reveal or rate the freshly
+  // shuffled card, so swallow the click the drag leaves behind.
+  const handleClickCapture = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!pullDraggedRef.current) return
+    pullDraggedRef.current = false
+    event.preventDefault()
+    event.stopPropagation()
   }
 
   const changeCollection = (index: number) => {
     setCollectionIndices((current) => ({ ...current, [mode]: index }))
     setCardIndices((current) => ({ ...current, [mode]: 0 }))
     setRevealed(false)
-  }
-
-  const submitRating = (remembered: boolean) => {
-    if (!collection || !currentCard) return
-    rate(currentCardId, remembered)
-    goTo(1)
   }
 
   useEffect(() => {
@@ -262,9 +282,10 @@ export default function App() {
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerEnd}
       onPointerCancel={handlePointerEnd}
+      onClickCapture={handleClickCapture}
     >
-      <div className={`pull-refresh ${pullDistance >= 72 ? 'is-ready' : ''}`} style={{ transform: `translate(-50%, ${pullDistance - 42}px)` }} aria-hidden="true">
-        <RefreshCw size={16} /> <span>{pullDistance >= 72 ? 'Release to refresh' : 'Pull to refresh'}</span>
+      <div className={`pull-refresh ${pullDistance >= PULL_REFRESH_THRESHOLD ? 'is-ready' : ''}`} style={{ transform: `translate(-50%, ${pullDistance - 42}px)` }} aria-hidden="true">
+        <RefreshCw size={16} /> <span>{pullDistance >= PULL_REFRESH_THRESHOLD ? 'Release to refresh' : 'Pull to refresh'}</span>
       </div>
       <header className="mobile-header">
         <a className="brand" href="./" aria-label="TK home">
@@ -360,19 +381,19 @@ export default function App() {
 
           <section className={`practice-card ${!currentCard ? 'is-empty' : ''}`} aria-live="polite">
             {!currentCard ? (
-              <EmptyCollection showingFavorites={showFavorites} showingIgnored={showIgnored} />
+              <EmptyCollection showingFavorites={showFavorites} showingIgnored={showIgnored} showingIgnoredOnly={ignoredOnly} />
             ) : mode === 'translation' ? (
               <TranslationPractice
                 card={currentCard as TranslationCard}
                 language={language}
                 revealed={revealed}
-                onReveal={() => setRevealed(true)}
+                onReveal={() => setRevealed((current) => !current)}
               />
             ) : (
               <ExcerptPractice
                 card={currentCard as ExcerptCard}
                 revealed={revealed}
-                onReveal={() => setRevealed(true)}
+                onReveal={() => setRevealed((current) => !current)}
               />
             )}
           </section>
@@ -382,30 +403,19 @@ export default function App() {
                 <button className="icon-button" type="button" onClick={() => goTo(-1)} aria-label="Previous card">
                   <ArrowLeft size={20} />
                 </button>
-                {revealed ? (
-                  <div className="rating-actions">
-                    <button className="secondary-button" type="button" onClick={() => submitRating(false)}>
-                      <RotateCcw size={17} /> Review again
-                    </button>
-                    <button className="primary-button" type="button" onClick={() => submitRating(true)}>
-                      <Check size={18} /> Remembered
-                    </button>
-                  </div>
-                ) : (
-                  <div className="entry-actions entry-actions-inline">
-                    <button type="button" className={preferences.favorites.includes(currentCardId) ? 'active' : ''} aria-pressed={preferences.favorites.includes(currentCardId)} onClick={() => toggleFavorite(currentCardId)}>
-                      <Heart size={15} fill={preferences.favorites.includes(currentCardId) ? 'currentColor' : 'none'} />
-                      {preferences.favorites.includes(currentCardId) ? 'Favorited' : 'Favorite'}
-                    </button>
-                    <button type="button" className={preferences.ignored.includes(currentCardId) ? 'active' : ''} aria-pressed={preferences.ignored.includes(currentCardId)} onClick={() => {
-                      const wasIgnored = preferences.ignored.includes(currentCardId)
-                      toggleIgnored(currentCardId)
-                      if (!wasIgnored) goTo(1)
-                    }}>
-                      <Ban size={15} /> {preferences.ignored.includes(currentCardId) ? 'Restore entry' : 'Ignore entry'}
-                    </button>
-                  </div>
-                )}
+                <div className="entry-actions entry-actions-inline">
+                  <button type="button" className={preferences.favorites.includes(currentCardId) ? 'active' : ''} aria-pressed={preferences.favorites.includes(currentCardId)} onClick={() => toggleFavorite(currentCardId)}>
+                    <Heart size={15} fill={preferences.favorites.includes(currentCardId) ? 'currentColor' : 'none'} />
+                    {preferences.favorites.includes(currentCardId) ? 'Favorited' : 'Favorite'}
+                  </button>
+                  <button type="button" className={preferences.ignored.includes(currentCardId) ? 'active' : ''} aria-pressed={preferences.ignored.includes(currentCardId)} onClick={() => {
+                    const wasIgnored = preferences.ignored.includes(currentCardId)
+                    toggleIgnored(currentCardId)
+                    setPinnedIgnoredId(wasIgnored ? null : currentCardId)
+                  }}>
+                    <Ban size={15} /> {preferences.ignored.includes(currentCardId) ? 'Ignored' : 'Ignore'}
+                  </button>
+                </div>
                 <button className="icon-button" type="button" onClick={() => goTo(1)} aria-label="Next card">
                   <ArrowRight size={20} />
                 </button>
@@ -428,8 +438,12 @@ export default function App() {
                 Favorites only
               </label>
               <label>
+                <input type="checkbox" checked={ignoredOnly} onChange={(event) => setIgnoredOnly(event.target.checked)} />
+                Ignored only
+              </label>
+              <label>
                 <input type="checkbox" checked={showIgnored} onChange={(event) => setShowIgnored(event.target.checked)} />
-                Show ignored entries
+                Show ignored
               </label>
             </section>
           </div>

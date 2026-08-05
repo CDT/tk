@@ -32,6 +32,15 @@ describe('collection data', () => {
   })
 })
 
+const touch = { pointerId: 1, isPrimary: true, pointerType: 'touch' }
+
+function pullBy(distance: number) {
+  const shell = document.querySelector('.app-shell') as HTMLElement
+  fireEvent.pointerDown(shell, { ...touch, clientY: 0 })
+  fireEvent.pointerMove(shell, { ...touch, clientY: distance })
+  fireEvent.pointerUp(shell, { ...touch, clientY: distance })
+}
+
 describe('TK study flow', () => {
   beforeEach(() => {
     localStorage.clear()
@@ -63,19 +72,21 @@ describe('TK study flow', () => {
     expect(screen.getByTestId('translation-answer')).toHaveTextContent(
       "Before the meeting begins, we need to clarify today's primary objective",
     )
-    expect(screen.getByRole('button', { name: 'Remembered' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Favorite' })).toBeVisible()
+
+    fireEvent.click(screen.getByTestId('translation-answer'))
+    expect(screen.getByTestId('translation-answer').querySelector('.masked-translation')).toBeInTheDocument()
   })
 
-  it('supports the N1 Japanese target and advances progress', () => {
+  it('supports the N1 Japanese target and navigates to the next entry', () => {
     render(<App />)
 
     fireEvent.click(screen.getByRole('button', { name: '日本語' }))
     fireEvent.click(screen.getByTestId('translation-answer'))
     expect(screen.getByTestId('translation-answer')).toHaveTextContent('本日の最優先事項を明確にし')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Remembered' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Next card' }))
     expect(screen.getByText(/某个议题并不紧急/)).toBeVisible()
-    expect(localStorage.getItem('tk-study-progress')).toContain('business-core-01')
   })
 
   it('selects the classics collection and reveals an excerpt', () => {
@@ -96,8 +107,64 @@ describe('TK study flow', () => {
     expect(screen.getByRole('button', { name: 'Favorited' })).toBeVisible()
     expect(localStorage.getItem('tk-card-preferences')).toContain('business-core-01')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Ignore entry' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Ignore' }))
+    expect(screen.getByText(/在会议开始之前/)).toBeVisible()
     expect(localStorage.getItem('tk-card-preferences')).toContain('ignored')
+  })
+
+  it('reshuffles the session when the pull gesture passes the threshold', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'Next card' }))
+    expect(screen.getAllByText('2 / 100')[0]).toBeVisible()
+
+    pullBy(80)
+
+    expect(screen.getAllByText('1 / 100')[0]).toBeVisible()
+  })
+
+  it('leaves the session alone when the pull stops short of the threshold', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'Next card' }))
+
+    pullBy(40)
+
+    expect(screen.getAllByText('2 / 100')[0]).toBeVisible()
+  })
+
+  it('keeps taps working while the pull gesture is armed', () => {
+    render(<App />)
+    const answer = screen.getByTestId('translation-answer')
+
+    // A tap is a pointer sequence with no travel; it must still reach the button.
+    fireEvent.pointerDown(answer, { ...touch, clientY: 300 })
+    fireEvent.pointerUp(answer, { ...touch, clientY: 300 })
+    fireEvent.click(answer)
+
+    expect(answer.querySelector('.masked-translation')).not.toBeInTheDocument()
+  })
+
+  it('swallows the click a pull leaves behind on the card', () => {
+    render(<App />)
+    const answer = screen.getByTestId('translation-answer')
+
+    fireEvent.pointerDown(answer, { ...touch, clientY: 300 })
+    fireEvent.pointerMove(answer, { ...touch, clientY: 380 })
+    fireEvent.pointerUp(answer, { ...touch, clientY: 380 })
+    fireEvent.click(answer)
+
+    expect(screen.getByTestId('translation-answer').querySelector('.masked-translation')).toBeInTheDocument()
+  })
+
+  it('ignores mouse drags so desktop selection never refreshes the session', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'Next card' }))
+    const shell = document.querySelector('.app-shell') as HTMLElement
+
+    fireEvent.pointerDown(shell, { pointerId: 1, isPrimary: true, pointerType: 'mouse', clientY: 0 })
+    fireEvent.pointerMove(shell, { pointerId: 1, isPrimary: true, pointerType: 'mouse', clientY: 80 })
+    fireEvent.pointerUp(shell, { pointerId: 1, isPrimary: true, pointerType: 'mouse', clientY: 80 })
+
+    expect(screen.getAllByText('2 / 100')[0]).toBeVisible()
   })
 
   it('filters the collection to favorites from Study options', () => {
