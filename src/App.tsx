@@ -390,6 +390,7 @@ export default function App() {
                       type="button"
                       key={key}
                       className={language === key ? 'active' : ''}
+                      onPointerDown={() => setRevealed(false)}
                       onClick={() => { setLanguage(key); setRevealed(false) }}
                     >
                       {languageLabels[key]}

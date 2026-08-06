@@ -96,6 +96,20 @@ describe('TK study flow', () => {
     expect(screen.getByText(/某个议题并不紧急/)).toBeVisible()
   })
 
+  it('keeps a newly selected translation language masked until it is tapped', () => {
+    render(<App />)
+
+    fireEvent.click(screen.getByTestId('translation-answer'))
+    expect(screen.getByTestId('translation-answer').querySelector('.masked-translation')).not.toBeInTheDocument()
+
+    const japaneseButton = screen.getByRole('button', { name: '日本語' })
+    fireEvent.pointerDown(japaneseButton, { ...touch, clientY: 300 })
+    fireEvent.click(japaneseButton)
+
+    expect(screen.getByTestId('translation-answer')).toHaveTextContent('本日の最優先事項を明確にし')
+    expect(screen.getByTestId('translation-answer').querySelector('.masked-translation')).toBeInTheDocument()
+  })
+
   it('navigates between entries with horizontal swipes', () => {
     render(<App />)
 
