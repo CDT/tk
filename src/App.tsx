@@ -32,6 +32,8 @@ const PULL_MAX_DISTANCE = 96
 const PULL_REFRESH_THRESHOLD = 72
 /** Travel past which the gesture is a drag, not a tap, so the trailing click is swallowed. */
 const PULL_TAP_SLOP = 10
+/** Horizontal travel required to move between entries. */
+const SWIPE_NAVIGATION_THRESHOLD = 56
 
 export function shuffleItems<T>(items: readonly T[]): T[] {
   const shuffled = [...items]
@@ -165,7 +167,10 @@ export default function App() {
   const [showFavorites, setShowFavorites] = useState(false)
   const [optionsOpen, setOptionsOpen] = useState(false)
   const [pullDistance, setPullDistance] = useState(0)
+  const [navigationDirection, setNavigationDirection] = useState<-1 | 1>(1)
   const pullStartY = useRef<number | null>(null)
+  const swipeStartX = useRef<number | null>(null)
+  const horizontalSwipeRef = useRef(false)
   const pullDistanceRef = useRef(0)
   const pullDraggedRef = useRef(false)
   const { preferences, toggleFavorite, toggleIgnored } = useCardPreferences()
@@ -198,6 +203,7 @@ export default function App() {
       ...current,
       [mode]: nextIndex,
     }))
+    setNavigationDirection(direction)
     setPinnedIgnoredId(null)
     setRevealed(false)
   }
@@ -222,12 +228,23 @@ export default function App() {
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!event.isPrimary || event.pointerType !== 'touch' || optionsOpen) return
     pullStartY.current = event.clientY
+    swipeStartX.current = event.clientX
+    horizontalSwipeRef.current = false
     pullDraggedRef.current = false
   }
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!event.isPrimary || event.pointerType !== 'touch' || pullStartY.current === null) return
-    const nextDistance = Math.min(PULL_MAX_DISTANCE, Math.max(0, event.clientY - pullStartY.current))
+    const horizontalDistance = event.clientX - (swipeStartX.current ?? event.clientX)
+    const verticalDistance = event.clientY - pullStartY.current
+    if (horizontalSwipeRef.current || (Math.abs(horizontalDistance) > Math.abs(verticalDistance) && Math.abs(horizontalDistance) >= PULL_TAP_SLOP)) {
+      horizontalSwipeRef.current = true
+      pullDraggedRef.current = true
+      pullDistanceRef.current = 0
+      setPullDistance(0)
+      return
+    }
+    const nextDistance = Math.min(PULL_MAX_DISTANCE, Math.max(0, verticalDistance))
     if (nextDistance >= PULL_TAP_SLOP) pullDraggedRef.current = true
     pullDistanceRef.current = nextDistance
     setPullDistance(nextDistance)
@@ -235,10 +252,25 @@ export default function App() {
 
   const handlePointerEnd = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== 'touch') return
-    if (pullDistanceRef.current >= PULL_REFRESH_THRESHOLD) refreshSession()
+    const horizontalDistance = event.clientX - (swipeStartX.current ?? event.clientX)
+    const verticalDistance = event.clientY - (pullStartY.current ?? event.clientY)
+    if (Math.abs(horizontalDistance) > Math.abs(verticalDistance) && Math.abs(horizontalDistance) >= SWIPE_NAVIGATION_THRESHOLD) {
+      goTo(horizontalDistance < 0 ? 1 : -1)
+    } else if (pullDistanceRef.current >= PULL_REFRESH_THRESHOLD) refreshSession()
     else setPullDistance(0)
     pullStartY.current = null
+    swipeStartX.current = null
+    horizontalSwipeRef.current = false
     pullDistanceRef.current = 0
+  }
+
+  const handlePointerCancel = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== 'touch') return
+    pullStartY.current = null
+    swipeStartX.current = null
+    horizontalSwipeRef.current = false
+    pullDistanceRef.current = 0
+    setPullDistance(0)
   }
 
   // A pull that ends over a button would otherwise reveal or rate the freshly
@@ -281,7 +313,7 @@ export default function App() {
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerEnd}
-      onPointerCancel={handlePointerEnd}
+      onPointerCancel={handlePointerCancel}
       onClickCapture={handleClickCapture}
     >
       <div className={`pull-refresh ${pullDistance >= PULL_REFRESH_THRESHOLD ? 'is-ready' : ''}`} style={{ transform: `translate(-50%, ${pullDistance - 42}px)` }} aria-hidden="true">
@@ -382,19 +414,23 @@ export default function App() {
           <section className={`practice-card ${!currentCard ? 'is-empty' : ''}`} aria-live="polite">
             {!currentCard ? (
               <EmptyCollection showingFavorites={showFavorites} showingIgnored={showIgnored} showingIgnoredOnly={ignoredOnly} />
-            ) : mode === 'translation' ? (
-              <TranslationPractice
-                card={currentCard as TranslationCard}
-                language={language}
-                revealed={revealed}
-                onReveal={() => setRevealed((current) => !current)}
-              />
             ) : (
-              <ExcerptPractice
-                card={currentCard as ExcerptCard}
-                revealed={revealed}
-                onReveal={() => setRevealed((current) => !current)}
-              />
+              <div key={currentCardId} className={`card-transition card-transition-${navigationDirection === 1 ? 'next' : 'previous'}`}>
+                {mode === 'translation' ? (
+                  <TranslationPractice
+                    card={currentCard as TranslationCard}
+                    language={language}
+                    revealed={revealed}
+                    onReveal={() => setRevealed((current) => !current)}
+                  />
+                ) : (
+                  <ExcerptPractice
+                    card={currentCard as ExcerptCard}
+                    revealed={revealed}
+                    onReveal={() => setRevealed((current) => !current)}
+                  />
+                )}
+              </div>
             )}
           </section>
 

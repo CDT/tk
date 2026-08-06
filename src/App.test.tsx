@@ -41,6 +41,13 @@ function pullBy(distance: number) {
   fireEvent.pointerUp(shell, { ...touch, clientY: distance })
 }
 
+function swipeBy(distance: number) {
+  const shell = document.querySelector('.app-shell') as HTMLElement
+  fireEvent.pointerDown(shell, { ...touch, clientX: 200, clientY: 300 })
+  fireEvent.pointerMove(shell, { ...touch, clientX: 200 + distance, clientY: 300 })
+  fireEvent.pointerUp(shell, { ...touch, clientX: 200 + distance, clientY: 300 })
+}
+
 describe('TK study flow', () => {
   beforeEach(() => {
     localStorage.clear()
@@ -87,6 +94,16 @@ describe('TK study flow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Next card' }))
     expect(screen.getByText(/某个议题并不紧急/)).toBeVisible()
+  })
+
+  it('navigates between entries with horizontal swipes', () => {
+    render(<App />)
+
+    swipeBy(-80)
+    expect(screen.getAllByText('2 / 100')[0]).toBeVisible()
+
+    swipeBy(80)
+    expect(screen.getAllByText('1 / 100')[0]).toBeVisible()
   })
 
   it('selects the classics collection and reveals an excerpt', () => {
