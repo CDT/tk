@@ -2,32 +2,21 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import App, { shuffleItems } from './App'
 import { studyData } from './data'
 
-describe('collection data', () => {
-  it('contains two complete, valid 100-card translation collections', () => {
-    expect(studyData.translationCollections).toHaveLength(2)
-    studyData.translationCollections.forEach((collection) => {
-      expect(collection.cards).toHaveLength(100)
-      expect(new Set(collection.cards.map((card) => card.id)).size).toBe(100)
-      collection.cards.forEach((card) => {
-        for (const language of ['en', 'ja'] as const) {
-          card.translations[language].hints.forEach((hint) => {
-            expect(card.translations[language].text).toContain(hint)
-          })
-        }
-      })
+describe('study data', () => {
+  it('contains 100 complete translation cards', () => {
+    expect(studyData.translations).toHaveLength(100)
+    studyData.translations.forEach((card) => {
+      expect(card.source).not.toBe('')
+      expect(card.en).not.toBe('')
+      expect(card.ja).not.toBe('')
     })
   })
 
-  it('contains two complete, valid 100-card excerpt collections', () => {
-    expect(studyData.excerptCollections).toHaveLength(2)
-    studyData.excerptCollections.forEach((collection) => {
-      expect(collection.cards).toHaveLength(100)
-      expect(new Set(collection.cards.map((card) => card.id)).size).toBe(100)
-      collection.cards.forEach((card) => {
-        card.keywords.forEach((keyword) => {
-          expect(card.lines.join('')).toContain(keyword)
-        })
-      })
+  it('contains 100 complete excerpt cards', () => {
+    expect(studyData.excerpts).toHaveLength(100)
+    studyData.excerpts.forEach((card) => {
+      expect(card.title).not.toBe('')
+      expect(card.text).not.toBe('')
     })
   })
 })
@@ -56,21 +45,19 @@ describe('TK study flow', () => {
 
   afterEach(() => vi.restoreAllMocks())
 
-  it('shuffles collection cards without changing the source data', () => {
+  it('shuffles cards without changing the source data', () => {
     vi.mocked(Math.random).mockReturnValue(0)
-    const cards = studyData.translationCollections[0].cards
+    const cards = studyData.translations
     const shuffled = shuffleItems(cards)
 
-    expect(shuffled.map((card) => card.id)).not.toEqual(cards.map((card) => card.id))
-    expect(new Set(shuffled.map((card) => card.id))).toEqual(new Set(cards.map((card) => card.id)))
-    expect(studyData.translationCollections[0].cards).toBe(cards)
+    expect(shuffled).not.toEqual(cards)
+    expect(new Set(shuffled)).toEqual(new Set(cards))
+    expect(studyData.translations).toBe(cards)
   })
 
-  it('selects the business collection and reveals its complete translation', () => {
+  it('reveals a complete translation', () => {
     render(<App />)
 
-    expect(screen.getByRole('combobox', { name: 'Collection' })).toHaveValue('0')
-    expect(screen.getByRole('option', { name: 'Business Core 01 · 100' })).toBeVisible()
     expect(screen.getByText(/在会议开始之前/)).toBeInTheDocument()
     expect(screen.getByTestId('translation-answer').querySelector('.masked-translation')).toBeInTheDocument()
 
@@ -120,14 +107,12 @@ describe('TK study flow', () => {
     expect(screen.getAllByText('1 / 100')[0]).toBeVisible()
   })
 
-  it('selects the classics collection and reveals an excerpt', () => {
+  it('reveals an excerpt', () => {
     render(<App />)
     const excerptButtons = screen.getAllByRole('button', { name: 'Excerpts' })
     fireEvent.click(excerptButtons[0])
 
-    expect(screen.getByRole('option', { name: 'Chinese Classics 01 · 100' })).toBeVisible()
-    expect(screen.getByText('春眠')).toBeVisible()
-    fireEvent.click(screen.getByText('春眠'))
+    fireEvent.click(screen.getByRole('button', { name: 'Reveal the complete excerpt' }))
     expect(screen.getByText('春眠不觉晓，处处闻啼鸟。')).toBeVisible()
   })
 
@@ -136,7 +121,7 @@ describe('TK study flow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Favorite' }))
     expect(screen.getByRole('button', { name: 'Favorited' })).toBeVisible()
-    expect(localStorage.getItem('tk-card-preferences')).toContain('business-core-01')
+    expect(localStorage.getItem('tk-card-preferences')).toContain('translation:0')
 
     fireEvent.click(screen.getByRole('button', { name: 'Ignore' }))
     expect(screen.getByText(/在会议开始之前/)).toBeVisible()
@@ -198,7 +183,7 @@ describe('TK study flow', () => {
     expect(screen.getAllByText('2 / 100')[0]).toBeVisible()
   })
 
-  it('filters the collection to favorites from Study options', () => {
+  it('filters cards to favorites from Study options', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: 'Favorite' }))
     fireEvent.click(screen.getByRole('button', { name: /Options/ }))

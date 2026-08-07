@@ -14,11 +14,9 @@ import { studyData } from './data'
 import { useCardPreferences } from './hooks/useCardPreferences'
 import type {
   ExcerptCard,
-  ExcerptCollection,
   StudyMode,
   TargetLanguage,
   TranslationCard,
-  TranslationCollection,
 } from './types'
 
 const languageLabels: Record<TargetLanguage, string> = {
@@ -50,14 +48,8 @@ export function shuffleItems<T>(items: readonly T[]): T[] {
 
 function createSessionData() {
   return {
-    translationCollections: studyData.translationCollections.map((collection) => ({
-      ...collection,
-      cards: shuffleItems(collection.cards),
-    })),
-    excerptCollections: studyData.excerptCollections.map((collection) => ({
-      ...collection,
-      cards: shuffleItems(collection.cards),
-    })),
+    translations: shuffleItems(studyData.translations),
+    excerpts: shuffleItems(studyData.excerpts),
   }
 }
 
@@ -83,7 +75,6 @@ function TranslationPractice({ card, language, revealed, onReveal }: Translation
     <div className="practice-content">
       <div className="source-block">
         <p className="source-text business-source" lang="zh-CN">{card.source}</p>
-        <p className="source-note">{card.note}</p>
       </div>
 
       <div className="divider"><span>translate</span></div>
@@ -97,7 +88,7 @@ function TranslationPractice({ card, language, revealed, onReveal }: Translation
       >
         <p lang={language}>
           <span className={!revealed ? 'masked-translation' : undefined}>
-            {card.translations[language].text}
+            {card[language]}
           </span>
         </p>
         {!revealed && <span className="reveal-hint">Tap to reveal the full translation</span>}
@@ -116,7 +107,7 @@ function ExcerptPractice({ card, revealed, onReveal }: ExcerptPracticeProps) {
   return (
     <div className="practice-content">
       <div className="excerpt-heading">
-        <span>{card.dynasty} · {card.note}</span>
+        <span>{card.dynasty}</span>
         <h2>{card.title}</h2>
         <p>{card.author}</p>
       </div>
@@ -129,14 +120,11 @@ function ExcerptPractice({ card, revealed, onReveal }: ExcerptPracticeProps) {
       >
         {revealed ? (
           <div className="poem-lines" lang="zh-CN">
-            {card.lines.map((line) => <p key={line}>{line}</p>)}
+            {card.text.split('\n').map((line) => <p key={line}>{line}</p>)}
           </div>
         ) : (
           <>
-            <div className="keyword-cloud" lang="zh-CN">
-              {card.keywords.map((keyword) => <span key={keyword}>{keyword}</span>)}
-            </div>
-            <span className="reveal-hint">Use the keywords, then tap to reveal</span>
+            <span className="reveal-hint">Tap to reveal the excerpt</span>
           </>
         )}
       </button>
@@ -144,12 +132,12 @@ function ExcerptPractice({ card, revealed, onReveal }: ExcerptPracticeProps) {
   )
 }
 
-function EmptyCollection({ showingFavorites, showingIgnored, showingIgnoredOnly }: { showingFavorites: boolean; showingIgnored: boolean; showingIgnoredOnly: boolean }) {
+function EmptyCards({ showingFavorites, showingIgnored, showingIgnoredOnly }: { showingFavorites: boolean; showingIgnored: boolean; showingIgnoredOnly: boolean }) {
   return (
-    <div className="empty-collection">
+    <div className="empty-state">
       <LibraryBig size={28} />
-      <h2>{showingFavorites ? 'No favorites in this collection' : showingIgnoredOnly ? 'No ignored entries in this collection' : 'No entries in this collection'}</h2>
-      <p>{showingFavorites ? 'Turn off “Favorites only” in Study options to see every entry.' : showingIgnoredOnly ? 'Turn off “Ignored only” in Study options to see every entry.' : showingIgnored ? 'Choose another collection to keep studying.' : 'Enable “Show ignored” in Study options to include ignored entries.'}</p>
+      <h2>{showingFavorites ? 'No favorite entries' : showingIgnoredOnly ? 'No ignored entries' : 'No entries'}</h2>
+      <p>{showingFavorites ? 'Turn off “Favorites only” in Study options to see every entry.' : showingIgnoredOnly ? 'Turn off “Ignored only” in Study options to see every entry.' : 'Enable “Show ignored” in Study options to include ignored entries.'}</p>
     </div>
   )
 }
@@ -158,7 +146,6 @@ export default function App() {
   const [sessionData, setSessionData] = useState(createSessionData)
   const [mode, setMode] = useState<StudyMode>('translation')
   const [language, setLanguage] = useState<TargetLanguage>('en')
-  const [collectionIndices, setCollectionIndices] = useState<Record<StudyMode, number>>({ translation: 0, excerpt: 0 })
   const [cardIndices, setCardIndices] = useState<Record<StudyMode, number>>({ translation: 0, excerpt: 0 })
   const [revealed, setRevealed] = useState(false)
   const [showIgnored, setShowIgnored] = useState(false)
@@ -175,13 +162,14 @@ export default function App() {
   const pullDraggedRef = useRef(false)
   const { preferences, toggleFavorite, toggleIgnored } = useCardPreferences()
 
-  const collections = mode === 'translation'
-    ? sessionData.translationCollections
-    : sessionData.excerptCollections
-  const collection = collections[collectionIndices[mode]] as TranslationCollection | ExcerptCollection | undefined
-  const allCards = collection?.cards ?? []
+  const allCards: Array<TranslationCard | ExcerptCard> = mode === 'translation'
+    ? sessionData.translations
+    : sessionData.excerpts
+  const getCardId = (card: TranslationCard | ExcerptCard) => mode === 'translation'
+    ? `translation:${studyData.translations.indexOf(card as TranslationCard)}`
+    : `excerpt:${studyData.excerpts.indexOf(card as ExcerptCard)}`
   const cards = allCards.filter((card) => {
-    const cardId = `${mode}:${collection?.id}:${card.id}`
+    const cardId = getCardId(card)
     const isIgnored = preferences.ignored.includes(cardId)
     return (!ignoredOnly || isIgnored)
       && (showIgnored || !isIgnored || cardId === pinnedIgnoredId)
@@ -189,15 +177,15 @@ export default function App() {
   })
   const currentIndex = Math.min(cardIndices[mode], Math.max(cards.length - 1, 0))
   const currentCard = cards[currentIndex]
-  const currentCardId = collection && currentCard ? `${mode}:${collection.id}:${currentCard.id}` : ''
+  const currentCardId = currentCard ? getCardId(currentCard) : ''
 
   const goTo = (direction: -1 | 1) => {
     if (cards.length === 0) return
     const nextCard = cards[(currentIndex + direction + cards.length) % cards.length]
     const nextCards = pinnedIgnoredId
-      ? cards.filter((card) => `${mode}:${collection?.id}:${card.id}` !== pinnedIgnoredId)
+      ? cards.filter((card) => getCardId(card) !== pinnedIgnoredId)
       : cards
-    const nextIndex = nextCards.findIndex((card) => card.id === nextCard.id)
+    const nextIndex = nextCards.indexOf(nextCard)
     if (nextIndex === -1) return
     setCardIndices((current) => ({
       ...current,
@@ -282,12 +270,6 @@ export default function App() {
     event.stopPropagation()
   }
 
-  const changeCollection = (index: number) => {
-    setCollectionIndices((current) => ({ ...current, [mode]: index }))
-    setCardIndices((current) => ({ ...current, [mode]: 0 }))
-    setRevealed(false)
-  }
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.target instanceof HTMLButtonElement || event.target instanceof HTMLSelectElement) return
@@ -344,7 +326,7 @@ export default function App() {
               onClick={() => changeMode('translation')}
             >
               <Languages size={19} />
-              <span><strong>Translation</strong><small>{sessionData.translationCollections.length} collections · 中 → EN / 日本語</small></span>
+              <span><strong>Translation</strong><small>中 → EN / 日本語</small></span>
             </button>
             <button
               type="button"
@@ -352,7 +334,7 @@ export default function App() {
               onClick={() => changeMode('excerpt')}
             >
               <BookOpenText size={19} />
-              <span><strong>Excerpts</strong><small>{sessionData.excerptCollections.length} collections · 诗词与古文</small></span>
+              <span><strong>Excerpts</strong><small>诗词与古文</small></span>
             </button>
           </nav>
           <p className="sidebar-footer">No streaks. No noise.<br />Just something worth remembering.</p>
@@ -365,23 +347,6 @@ export default function App() {
           </div>
 
           <div className="study-toolbar">
-            {collections.length > 0 ? (
-              <label className="collection-picker">
-                <span>Collection</span>
-                <select
-                  value={collectionIndices[mode]}
-                  onChange={(event) => changeCollection(Number(event.target.value))}
-                  aria-label="Collection"
-                >
-                  {collections.map((item, index) => (
-                    <option key={item.id} value={index}>{item.title} · {item.cards.length}</option>
-                  ))}
-                </select>
-              </label>
-            ) : (
-              <span className="no-collection-label">No collection selected</span>
-            )}
-
             <div className="toolbar-controls">
               {mode === 'translation' && (
                 <div className="language-switcher" aria-label="Translation language">
@@ -405,16 +370,9 @@ export default function App() {
             </div>
           </div>
 
-          {collection && (
-            <div className="collection-meta">
-              <span>{collection.subtitle}</span>
-              {'levels' in collection && collection.levels.map((level) => <em key={level}>{level}</em>)}
-            </div>
-          )}
-
           <section className={`practice-card ${!currentCard ? 'is-empty' : ''}`} aria-live="polite">
             {!currentCard ? (
-              <EmptyCollection showingFavorites={showFavorites} showingIgnored={showIgnored} showingIgnoredOnly={ignoredOnly} />
+              <EmptyCards showingFavorites={showFavorites} showingIgnored={showIgnored} showingIgnoredOnly={ignoredOnly} />
             ) : (
               <div key={currentCardId} className={`card-transition card-transition-${navigationDirection === 1 ? 'next' : 'previous'}`}>
                 {mode === 'translation' ? (
