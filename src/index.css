@@ -115,6 +115,16 @@ main { min-height: 0; display: flex; flex-direction: column; padding-top: clamp(
 .entry-actions button:hover, .entry-actions button.active { color: #b75e48; background: rgba(190, 101, 79, 0.09); }
 .icon-button { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid rgba(55, 69, 61, 0.12); border-radius: 50%; color: #5f6b64; background: rgba(255, 255, 255, 0.5); cursor: pointer; transition: 160ms ease; }
 .icon-button:hover { color: #26342e; background: white; transform: translateY(-1px); }
+.admin-dialog { width: min(560px, calc(100vw - 32px)); max-height: min(720px, calc(100dvh - 32px)); overflow: auto; }
+.admin-login, .admin-menu, .card-editor { display: grid; gap: 14px; }
+.admin-login > p, .admin-menu > p { margin: 0; color: #78827c; font-family: var(--font-serif); font-size: 13px; line-height: 1.55; }
+.admin-login label, .card-editor label { display: grid; gap: 6px; color: #596760; font-size: 11px; font-weight: 700; }
+.admin-login input, .card-editor input, .card-editor textarea { width: 100%; padding: 10px 11px; border: 1px solid #deded7; border-radius: 10px; color: #26342e; background: #fffefa; font: inherit; font-size: 13px; font-weight: 400; }
+.card-editor textarea { min-height: 78px; resize: vertical; line-height: 1.55; }
+.admin-error { margin: 0; color: #ae493d; font-size: 12px; }
+.editor-actions { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 8px; margin-top: 4px; }
+.danger-button { display: inline-flex; align-items: center; gap: 5px; padding: 8px 10px; border: 0; border-radius: 9px; color: #ae493d; background: #f8e8e3; font-size: 11px; font-weight: 700; cursor: pointer; }
+.danger-button:disabled, .primary-button:disabled { cursor: wait; opacity: 0.65; }
 .reveal-button { justify-self: center; }
 .primary-button, .secondary-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; font-size: 12px; font-weight: 680; cursor: pointer; transition: 160ms ease; }
 .primary-button { border: 1px solid #26342e; color: white; background: #26342e; box-shadow: 0 8px 20px rgba(38, 52, 46, 0.16); }

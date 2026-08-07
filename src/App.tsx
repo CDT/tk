@@ -7,13 +7,19 @@ import {
   Heart,
   Languages,
   LibraryBig,
+  LockKeyhole,
+  Pencil,
   RefreshCw,
   SlidersHorizontal,
+  Trash2,
 } from 'lucide-react'
 import { studyData } from './data'
+import { manageStudyCards, type EditableCard } from './lib/adminCards'
 import { useCardPreferences } from './hooks/useCardPreferences'
+import { loadStudyCards } from './lib/studyCards'
 import type {
   ExcerptCard,
+  StudyData,
   StudyMode,
   TargetLanguage,
   TranslationCard,
@@ -46,10 +52,10 @@ export function shuffleItems<T>(items: readonly T[]): T[] {
   return shuffled
 }
 
-function createSessionData() {
+function createSessionData(data: StudyData = studyData) {
   return {
-    translations: shuffleItems(studyData.translations),
-    excerpts: shuffleItems(studyData.excerpts),
+    translations: shuffleItems(data.translations),
+    excerpts: shuffleItems(data.excerpts),
   }
 }
 
@@ -142,6 +148,58 @@ function EmptyCards({ showingFavorites, showingIgnored, showingIgnoredOnly }: { 
   )
 }
 
+function createBlankCard(mode: StudyMode): EditableCard {
+  return mode === 'translation'
+    ? { id: '', source: '', en: '', ja: '' }
+    : { id: '', title: '', author: '', dynasty: '', text: '' }
+}
+
+interface CardEditorProps {
+  card: EditableCard
+  mode: StudyMode
+  onCancel: () => void
+  onSave: (card: EditableCard) => void
+  onDelete: () => void
+  saving: boolean
+}
+
+function CardEditor({ card, mode, onCancel, onSave, onDelete, saving }: CardEditorProps) {
+  const [draft, setDraft] = useState<EditableCard>(card)
+
+  useEffect(() => setDraft(card), [card])
+
+  const update = (field: string, value: string) => {
+    setDraft((current) => ({ ...current, [field]: value } as EditableCard))
+  }
+
+  const isNew = !draft.id
+
+  return (
+    <form className="card-editor" onSubmit={(event) => { event.preventDefault(); onSave(draft) }}>
+      {mode === 'translation' ? (
+        <>
+          <label>Chinese source<textarea required value={(draft as TranslationCard).source} onChange={(event) => update('source', event.target.value)} /></label>
+          <label>English translation<textarea required value={(draft as TranslationCard).en} onChange={(event) => update('en', event.target.value)} /></label>
+          <label>Japanese translation<textarea required value={(draft as TranslationCard).ja} onChange={(event) => update('ja', event.target.value)} /></label>
+        </>
+      ) : (
+        <>
+          <label>Title<input required value={(draft as ExcerptCard).title} onChange={(event) => update('title', event.target.value)} /></label>
+          <label>Author<input required value={(draft as ExcerptCard).author} onChange={(event) => update('author', event.target.value)} /></label>
+          <label>Dynasty<input required value={(draft as ExcerptCard).dynasty} onChange={(event) => update('dynasty', event.target.value)} /></label>
+          <label>Passage<textarea required value={(draft as ExcerptCard).text} onChange={(event) => update('text', event.target.value)} /></label>
+        </>
+      )}
+      <div className="editor-actions">
+        {!isNew && <button type="button" className="danger-button" onClick={onDelete} disabled={saving}><Trash2 size={14} /> Delete</button>}
+        <span />
+        <button type="button" className="text-button" onClick={onCancel} disabled={saving}>Cancel</button>
+        <button type="submit" className="primary-button" disabled={saving}>{saving ? 'Saving…' : isNew ? 'Add entry' : 'Save changes'}</button>
+      </div>
+    </form>
+  )
+}
+
 export default function App() {
   const [sessionData, setSessionData] = useState(createSessionData)
   const [mode, setMode] = useState<StudyMode>('translation')
@@ -153,6 +211,13 @@ export default function App() {
   const [pinnedIgnoredId, setPinnedIgnoredId] = useState<string | null>(null)
   const [showFavorites, setShowFavorites] = useState(false)
   const [optionsOpen, setOptionsOpen] = useState(false)
+  const [adminOpen, setAdminOpen] = useState(false)
+  const [adminPassword, setAdminPassword] = useState('')
+  const [adminAuthenticated, setAdminAuthenticated] = useState(false)
+  const [adminEditing, setAdminEditing] = useState<EditableCard | null>(null)
+  const [adminMode, setAdminMode] = useState<StudyMode>('translation')
+  const [adminError, setAdminError] = useState('')
+  const [adminSaving, setAdminSaving] = useState(false)
   const [pullDistance, setPullDistance] = useState(0)
   const [navigationDirection, setNavigationDirection] = useState<-1 | 1>(1)
   const pullStartY = useRef<number | null>(null)
@@ -165,9 +230,7 @@ export default function App() {
   const allCards: Array<TranslationCard | ExcerptCard> = mode === 'translation'
     ? sessionData.translations
     : sessionData.excerpts
-  const getCardId = (card: TranslationCard | ExcerptCard) => mode === 'translation'
-    ? `translation:${studyData.translations.indexOf(card as TranslationCard)}`
-    : `excerpt:${studyData.excerpts.indexOf(card as ExcerptCard)}`
+  const getCardId = (card: TranslationCard | ExcerptCard) => card.id
   const cards = allCards.filter((card) => {
     const cardId = getCardId(card)
     const isIgnored = preferences.ignored.includes(cardId)
@@ -178,6 +241,71 @@ export default function App() {
   const currentIndex = Math.min(cardIndices[mode], Math.max(cards.length - 1, 0))
   const currentCard = cards[currentIndex]
   const currentCardId = currentCard ? getCardId(currentCard) : ''
+
+  const openAdmin = (card: EditableCard | null = null, nextMode: StudyMode = mode) => {
+    setAdminOpen(true)
+    setAdminError('')
+    setAdminMode(nextMode)
+    setAdminEditing(card)
+  }
+
+  const verifyAdminPassword = async () => {
+    setAdminSaving(true)
+    setAdminError('')
+    try {
+      await manageStudyCards('verify', adminPassword)
+      setAdminAuthenticated(true)
+    } catch {
+      setAdminError('Incorrect password or unavailable admin service.')
+    } finally {
+      setAdminSaving(false)
+    }
+  }
+
+  const saveAdminCard = async (card: EditableCard) => {
+    setAdminSaving(true)
+    setAdminError('')
+    try {
+      const action = card.id ? 'update' : 'create'
+      const savedCard = await manageStudyCards(action, adminPassword, card, adminMode)
+      if (!savedCard) throw new Error('No card returned')
+      setSessionData((current) => ({
+        translations: adminMode === 'translation'
+          ? action === 'create'
+            ? [...current.translations, savedCard as TranslationCard]
+            : current.translations.map((item) => item.id === savedCard.id ? savedCard as TranslationCard : item)
+          : current.translations,
+        excerpts: adminMode === 'excerpt'
+          ? action === 'create'
+            ? [...current.excerpts, savedCard as ExcerptCard]
+            : current.excerpts.map((item) => item.id === savedCard.id ? savedCard as ExcerptCard : item)
+          : current.excerpts,
+      }))
+      setAdminEditing(null)
+    } catch {
+      setAdminError('Could not save this entry. Check your password and connection.')
+    } finally {
+      setAdminSaving(false)
+    }
+  }
+
+  const deleteAdminCard = async () => {
+    if (!adminEditing || !window.confirm('Delete this entry permanently?')) return
+    setAdminSaving(true)
+    setAdminError('')
+    try {
+      await manageStudyCards('delete', adminPassword, adminEditing)
+      setSessionData((current) => ({
+        translations: current.translations.filter((item) => item.id !== adminEditing.id),
+        excerpts: current.excerpts.filter((item) => item.id !== adminEditing.id),
+      }))
+      setAdminEditing(null)
+    } catch {
+      setAdminError('Could not delete this entry.')
+    } finally {
+      setAdminSaving(false)
+    }
+  }
 
   const goTo = (direction: -1 | 1) => {
     if (cards.length === 0) return
@@ -201,8 +329,8 @@ export default function App() {
     setRevealed(false)
   }
 
-  const refreshSession = () => {
-    setSessionData(createSessionData())
+  const refreshSession = (data?: StudyData) => {
+    setSessionData(createSessionData(data))
     setCardIndices({ translation: 0, excerpt: 0 })
     setRevealed(false)
     pullDistanceRef.current = 0
@@ -283,6 +411,18 @@ export default function App() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   })
+
+  useEffect(() => {
+    let cancelled = false
+
+    void loadStudyCards().then((data) => {
+      if (!cancelled && data) refreshSession(data)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const cardLabel = useMemo(
     () => cards.length > 0 ? `${currentIndex + 1} / ${cards.length}` : '0 / 0',
@@ -366,6 +506,9 @@ export default function App() {
               <button className="options-button" type="button" onClick={() => setOptionsOpen(true)} aria-haspopup="dialog">
                 <SlidersHorizontal size={15} /> Options
               </button>
+              <button className="options-button" type="button" onClick={() => openAdmin()} aria-haspopup="dialog">
+                <LockKeyhole size={15} /> Manage entries
+              </button>
               <span className="desktop-count">{cardLabel}</span>
             </div>
           </div>
@@ -410,6 +553,9 @@ export default function App() {
                   }}>
                     <Ban size={15} /> {preferences.ignored.includes(currentCardId) ? 'Ignored' : 'Ignore'}
                   </button>
+                  <button type="button" onClick={() => openAdmin(currentCard)}>
+                    <Pencil size={15} /> Edit
+                  </button>
                 </div>
                 <button className="icon-button" type="button" onClick={() => goTo(1)} aria-label="Next card">
                   <ArrowRight size={20} />
@@ -440,6 +586,40 @@ export default function App() {
                 <input type="checkbox" checked={showIgnored} onChange={(event) => setShowIgnored(event.target.checked)} />
                 Show ignored
               </label>
+            </section>
+          </div>
+        )}
+
+        {adminOpen && (
+          <div className="options-backdrop" role="presentation" onClick={() => setAdminOpen(false)}>
+            <section className="options-dialog admin-dialog" role="dialog" aria-modal="true" aria-labelledby="admin-title" onClick={(event) => event.stopPropagation()}>
+              <div className="options-heading">
+                <div>
+                  <p className="section-label">Admin</p>
+                  <h2 id="admin-title">Manage study entries</h2>
+                </div>
+                <button type="button" className="text-button" onClick={() => setAdminOpen(false)}>Done</button>
+              </div>
+              {!adminAuthenticated ? (
+                <form className="admin-login" onSubmit={(event) => { event.preventDefault(); void verifyAdminPassword() }}>
+                  <p>Enter the editor password to add, change, or delete entries.</p>
+                  <label>Password<input type="password" autoFocus required value={adminPassword} onChange={(event) => setAdminPassword(event.target.value)} /></label>
+                  {adminError && <p className="admin-error" role="alert">{adminError}</p>}
+                  <button type="submit" className="primary-button" disabled={adminSaving}>{adminSaving ? 'Checking…' : 'Unlock editor'}</button>
+                </form>
+              ) : adminEditing ? (
+                <>
+                  {adminError && <p className="admin-error" role="alert">{adminError}</p>}
+                  <CardEditor card={adminEditing} mode={adminMode} onCancel={() => setAdminEditing(null)} onSave={saveAdminCard} onDelete={deleteAdminCard} saving={adminSaving} />
+                </>
+              ) : (
+                <div className="admin-menu">
+                  <p>Choose a collection to add an entry, or use the Edit button on the current card.</p>
+                  {adminError && <p className="admin-error" role="alert">{adminError}</p>}
+                  <button type="button" className="secondary-button" onClick={() => { setAdminMode('translation'); setAdminEditing(createBlankCard('translation')) }}>Add translation</button>
+                  <button type="button" className="secondary-button" onClick={() => { setAdminMode('excerpt'); setAdminEditing(createBlankCard('excerpt')) }}>Add excerpt</button>
+                </div>
+              )}
             </section>
           </div>
         )}
