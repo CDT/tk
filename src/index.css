@@ -33,6 +33,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
 button { font: inherit; }
 button:focus-visible, a:focus-visible { outline: 3px solid rgba(207, 105, 79, 0.35); outline-offset: 3px; }
 
+.startup-error { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 24px; }
+.startup-error-card { width: min(520px, 100%); padding: clamp(28px, 6vw, 48px); border: 1px solid rgba(174, 73, 61, 0.18); border-radius: 24px; background: rgba(251, 250, 246, 0.96); box-shadow: 0 20px 56px rgba(66, 72, 66, 0.08); }
+.startup-error-card h1 { margin: 0 0 12px; color: #24312c; font-family: var(--font-serif); font-size: clamp(27px, 5vw, 36px); font-weight: 500; }
+.startup-error-card > p:last-child { margin: 0; color: #ae493d; line-height: 1.6; overflow-wrap: anywhere; }
+
 /* Keep both swipe directions available to the app while preserving pinch zoom. */
 .app-shell { height: 100vh; height: 100dvh; overflow: hidden; touch-action: pinch-zoom; }
 .pull-refresh { position: fixed; z-index: 5; top: 0; left: 50%; display: flex; align-items: center; gap: 7px; padding: 9px 13px; border-radius: 0 0 12px 12px; color: #75827a; background: #fbfaf6; box-shadow: 0 5px 18px rgba(52, 65, 58, 0.12); font-size: 10px; font-weight: 700; pointer-events: none; transition: transform 140ms ease; }
@@ -103,6 +108,10 @@ main { min-height: 0; display: flex; flex-direction: column; padding-top: clamp(
 .excerpt-answer { min-height: 0; flex: 1; margin-top: 18px; padding: clamp(16px, 3vh, 24px); border: 1px dashed #dddcd4; background: #f8f6f0; }
 .poem-lines { color: #2d3b35; font-family: var(--font-serif); font-size: clamp(17px, 2.6vh, 22px); line-height: 1.7; letter-spacing: 0.05em; }
 .poem-lines p { margin: 0; }
+.word-practice { gap: 18px; }
+.word-answer { min-height: 0; flex: 1; padding: 18px; border: 1px dashed #dddcd4; border-radius: 16px; color: #36453e; background: #f8f6f0; cursor: pointer; }
+.word-details { max-width: 680px; margin: auto; text-align: left; }
+.word-details-text { margin: 0; padding-top: 14px; border-top: 1px solid #e4e3dc; font-family: var(--font-serif); font-size: 13px; line-height: 1.7; white-space: pre-line; }
 .empty-state { max-width: 390px; margin: auto; text-align: center; }
 .empty-state svg { color: #c06a54; }
 .empty-state h2 { margin: 14px 0 8px; font-family: var(--font-serif); font-size: 24px; font-weight: 500; }
@@ -141,7 +150,7 @@ main { min-height: 0; display: flex; flex-direction: column; padding-top: clamp(
 .options-heading h2 { margin: 0; color: #2b3933; font-family: var(--font-serif); font-size: 24px; font-weight: 500; }
 .options-heading .text-button { margin: 4px 0 0; }
 .options-dialog > label { display: flex; align-items: center; gap: 9px; padding: 12px 0; border-top: 1px solid #eceae3; color: #526058; font-size: 13px; cursor: pointer; }
-.options-dialog input { width: 15px; height: 15px; accent-color: #52655a; }
+.options-dialog input[type="checkbox"] { width: 15px; height: 15px; accent-color: #52655a; }
 
 .mobile-header, .mobile-mode-tabs { display: none; }
 

@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import type { ExcerptCard, StudyData, TranslationCard } from '../types'
+import type { StudyData } from '../types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
@@ -10,7 +10,7 @@ const supabase = supabaseUrl && supabaseKey
 
 interface StudyCardRow {
   id: string
-  mode: 'translation' | 'excerpt'
+  mode: 'translation' | 'excerpt' | 'word'
   position: number
   source: string | null
   en: string | null
@@ -19,20 +19,22 @@ interface StudyCardRow {
   author: string | null
   dynasty: string | null
   text: string | null
+  word: string | null
+  explanation: string | null
 }
 
-export async function loadStudyCards(): Promise<StudyData | null> {
-  if (!supabase) return null
+export async function loadStudyCards(): Promise<StudyData> {
+  if (!supabase) {
+    throw new Error('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.')
+  }
 
   const { data, error } = await supabase
     .from('study_cards')
-    .select('id, mode, position, source, en, ja, title, author, dynasty, text')
+    .select('id, mode, position, source, en, ja, title, author, dynasty, text, word, explanation')
     .order('position')
 
-  if (error || !data) {
-    console.warn('Could not load study cards from Supabase.', error)
-    return null
-  }
+  if (error) throw new Error('Could not load study cards from Supabase.', { cause: error })
+  if (!data) throw new Error('Supabase returned no study card data.')
 
   const cards = data as StudyCardRow[]
   const translations = cards
@@ -47,8 +49,17 @@ export async function loadStudyCards(): Promise<StudyData | null> {
       dynasty: dynasty ?? '',
       text: text ?? '',
     }))
+  const words = cards
+    .filter((card) => card.mode === 'word')
+    .map(({ id, word, explanation }) => ({
+      id,
+      word: word ?? '',
+      explanation: explanation ?? '',
+    }))
 
-  return translations.length > 0 && excerpts.length > 0
-    ? { translations, excerpts }
-    : null
+  if (translations.length === 0 || excerpts.length === 0) {
+    throw new Error('Supabase must contain both translation and excerpt study cards.')
+  }
+
+  return { translations, excerpts, words }
 }

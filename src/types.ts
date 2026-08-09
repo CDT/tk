@@ -1,4 +1,4 @@
-export type StudyMode = 'translation' | 'excerpt'
+export type StudyMode = 'translation' | 'excerpt' | 'word'
 export type TargetLanguage = 'en' | 'ja'
 
 export interface TranslationCard {
@@ -16,9 +16,16 @@ export interface ExcerptCard {
   text: string
 }
 
+export interface WordCard {
+  id: string
+  word: string
+  explanation: string
+}
+
 export interface StudyData {
   translations: TranslationCard[]
   excerpts: ExcerptCard[]
+  words: WordCard[]
 }
 
 export interface Progress {

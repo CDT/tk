@@ -1,4 +1,4 @@
-type StudyMode = 'translation' | 'excerpt'
+type StudyMode = 'translation' | 'excerpt' | 'word'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -25,8 +25,8 @@ Deno.serve(async (request) => {
     return response.ok ? json({ ok: true }) : json({ error: await response.text() }, 400)
   }
 
-  const cardMode = (mode ?? (card?.source ? 'translation' : 'excerpt')) as StudyMode
-  if (!card || !['translation', 'excerpt'].includes(cardMode)) return json({ error: 'Invalid card.' }, 400)
+  const cardMode = (mode ?? (card?.source ? 'translation' : card?.word ? 'word' : 'excerpt')) as StudyMode
+  if (!card || !['translation', 'excerpt', 'word'].includes(cardMode)) return json({ error: 'Invalid card.' }, 400)
 
   if (action === 'create') {
     const positions = await fetch(`${baseUrl}?mode=eq.${cardMode}&select=position&order=position.desc&limit=1`, { headers })
@@ -35,7 +35,7 @@ Deno.serve(async (request) => {
     const response = await fetch(baseUrl, {
       method: 'POST',
       headers: { ...headers, Prefer: 'return=representation' },
-      body: JSON.stringify({ ...card, id: `${cardMode}:${position}`, mode: cardMode, position }),
+      body: JSON.stringify({ ...card, id: `${cardMode}-${String(position + 1).padStart(3, '0')}`, mode: cardMode, position }),
     })
     const data = await response.json()
     return response.ok ? json({ card: data[0] }) : json({ error: data }, 400)

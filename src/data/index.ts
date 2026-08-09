@@ -1,6 +1,7 @@
 import translations from './translations.json'
 import excerpts from './excerpts.json'
-import type { ExcerptCard, StudyData, TranslationCard } from '../types'
+import words from './words.json'
+import type { ExcerptCard, StudyData, TranslationCard, WordCard } from '../types'
 
 const studyData: StudyData = {
   translations: translations.map((card, position) => ({
@@ -11,6 +12,10 @@ const studyData: StudyData = {
     ...card,
     id: `excerpt:${position}`,
   })) as ExcerptCard[],
+  words: words.map((card, position) => ({
+    ...card,
+    id: `word-${String(position + 1).padStart(3, '0')}`,
+  })) as WordCard[],
 }
 
 export { studyData }

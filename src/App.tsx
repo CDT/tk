@@ -12,8 +12,8 @@ import {
   RefreshCw,
   SlidersHorizontal,
   Trash2,
+  WholeWord,
 } from 'lucide-react'
-import { studyData } from './data'
 import { manageStudyCards, type EditableCard } from './lib/adminCards'
 import { useCardPreferences } from './hooks/useCardPreferences'
 import { loadStudyCards } from './lib/studyCards'
@@ -23,6 +23,7 @@ import type {
   StudyMode,
   TargetLanguage,
   TranslationCard,
+  WordCard,
 } from './types'
 
 const languageLabels: Record<TargetLanguage, string> = {
@@ -52,11 +53,23 @@ export function shuffleItems<T>(items: readonly T[]): T[] {
   return shuffled
 }
 
-function createSessionData(data: StudyData = studyData) {
+function createSessionData(data: StudyData) {
   return {
     translations: shuffleItems(data.translations),
     excerpts: shuffleItems(data.excerpts),
+    words: shuffleItems(data.words),
   }
+}
+
+function findCardLocation(data: StudyData, cardId: string) {
+  const translationIndex = data.translations.findIndex((card) => card.id === cardId)
+  if (translationIndex >= 0) return { mode: 'translation' as const, index: translationIndex }
+
+  const excerptIndex = data.excerpts.findIndex((card) => card.id === cardId)
+  if (excerptIndex >= 0) return { mode: 'excerpt' as const, index: excerptIndex }
+
+  const wordIndex = data.words.findIndex((card) => card.id === cardId)
+  return wordIndex >= 0 ? { mode: 'word' as const, index: wordIndex } : null
 }
 
 function Logo() {
@@ -138,6 +151,24 @@ function ExcerptPractice({ card, revealed, onReveal }: ExcerptPracticeProps) {
   )
 }
 
+function WordPractice({ card, revealed, onReveal }: { card: WordCard; revealed: boolean; onReveal: () => void }) {
+  return (
+    <div className="practice-content word-practice">
+      <div className="excerpt-heading">
+        <span>Vocabulary</span>
+        <h2>{card.word}</h2>
+      </div>
+      <button type="button" className="word-answer" onClick={onReveal} aria-label={revealed ? 'Hide the word explanation' : 'Reveal the word explanation'}>
+        {revealed ? (
+          <div className="word-details">
+            <p className="word-details-text">{card.explanation}</p>
+          </div>
+        ) : <span className="reveal-hint">Tap to reveal the explanation</span>}
+      </button>
+    </div>
+  )
+}
+
 function EmptyCards({ showingFavorites, showingIgnored, showingIgnoredOnly }: { showingFavorites: boolean; showingIgnored: boolean; showingIgnoredOnly: boolean }) {
   return (
     <div className="empty-state">
@@ -149,9 +180,9 @@ function EmptyCards({ showingFavorites, showingIgnored, showingIgnoredOnly }: { 
 }
 
 function createBlankCard(mode: StudyMode): EditableCard {
-  return mode === 'translation'
-    ? { id: '', source: '', en: '', ja: '' }
-    : { id: '', title: '', author: '', dynasty: '', text: '' }
+  if (mode === 'translation') return { id: '', source: '', en: '', ja: '' }
+  if (mode === 'excerpt') return { id: '', title: '', author: '', dynasty: '', text: '' }
+  return { id: '', word: '', explanation: '' }
 }
 
 interface CardEditorProps {
@@ -182,12 +213,17 @@ function CardEditor({ card, mode, onCancel, onSave, onDelete, saving }: CardEdit
           <label>English translation<textarea required value={(draft as TranslationCard).en} onChange={(event) => update('en', event.target.value)} /></label>
           <label>Japanese translation<textarea required value={(draft as TranslationCard).ja} onChange={(event) => update('ja', event.target.value)} /></label>
         </>
-      ) : (
+      ) : mode === 'excerpt' ? (
         <>
           <label>Title<input required value={(draft as ExcerptCard).title} onChange={(event) => update('title', event.target.value)} /></label>
           <label>Author<input required value={(draft as ExcerptCard).author} onChange={(event) => update('author', event.target.value)} /></label>
           <label>Dynasty<input required value={(draft as ExcerptCard).dynasty} onChange={(event) => update('dynasty', event.target.value)} /></label>
           <label>Passage<textarea required value={(draft as ExcerptCard).text} onChange={(event) => update('text', event.target.value)} /></label>
+        </>
+      ) : (
+        <>
+          <label>Word<input required value={(draft as WordCard).word} onChange={(event) => update('word', event.target.value)} /></label>
+          <label>Explanation<textarea required value={(draft as WordCard).explanation} onChange={(event) => update('explanation', event.target.value)} placeholder={'Definition: …\nPrefix: …\nPostfix: …\nRoot: …\nEtymology: …\nExample: …'} /></label>
         </>
       )}
       <div className="editor-actions">
@@ -201,10 +237,12 @@ function CardEditor({ card, mode, onCancel, onSave, onDelete, saving }: CardEdit
 }
 
 export default function App() {
-  const [sessionData, setSessionData] = useState(createSessionData)
+  const [sessionData, setSessionData] = useState<StudyData>({ translations: [], excerpts: [], words: [] })
+  const [loadError, setLoadError] = useState<Error | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [mode, setMode] = useState<StudyMode>('translation')
   const [language, setLanguage] = useState<TargetLanguage>('en')
-  const [cardIndices, setCardIndices] = useState<Record<StudyMode, number>>({ translation: 0, excerpt: 0 })
+  const [cardIndices, setCardIndices] = useState<Record<StudyMode, number>>({ translation: 0, excerpt: 0, word: 0 })
   const [revealed, setRevealed] = useState(false)
   const [showIgnored, setShowIgnored] = useState(false)
   const [ignoredOnly, setIgnoredOnly] = useState(false)
@@ -227,10 +265,10 @@ export default function App() {
   const pullDraggedRef = useRef(false)
   const { preferences, toggleFavorite, toggleIgnored } = useCardPreferences()
 
-  const allCards: Array<TranslationCard | ExcerptCard> = mode === 'translation'
+  const allCards: Array<TranslationCard | ExcerptCard | WordCard> = mode === 'translation'
     ? sessionData.translations
-    : sessionData.excerpts
-  const getCardId = (card: TranslationCard | ExcerptCard) => card.id
+    : mode === 'excerpt' ? sessionData.excerpts : sessionData.words
+  const getCardId = (card: TranslationCard | ExcerptCard | WordCard) => card.id
   const cards = allCards.filter((card) => {
     const cardId = getCardId(card)
     const isIgnored = preferences.ignored.includes(cardId)
@@ -280,8 +318,23 @@ export default function App() {
             ? [...current.excerpts, savedCard as ExcerptCard]
             : current.excerpts.map((item) => item.id === savedCard.id ? savedCard as ExcerptCard : item)
           : current.excerpts,
+        words: adminMode === 'word'
+          ? action === 'create'
+            ? [...current.words, savedCard as WordCard]
+            : current.words.map((item) => item.id === savedCard.id ? savedCard as WordCard : item)
+          : current.words,
       }))
       setAdminEditing(null)
+      if (action === 'create') {
+        const savedIndex = adminMode === 'translation'
+          ? sessionData.translations.length
+          : adminMode === 'excerpt' ? sessionData.excerpts.length : sessionData.words.length
+        setMode(adminMode)
+        setCardIndices((current) => ({ ...current, [adminMode]: savedIndex }))
+        setPinnedIgnoredId(null)
+        setRevealed(false)
+        setAdminOpen(false)
+      }
     } catch {
       setAdminError('Could not save this entry. Check your password and connection.')
     } finally {
@@ -298,6 +351,7 @@ export default function App() {
       setSessionData((current) => ({
         translations: current.translations.filter((item) => item.id !== adminEditing.id),
         excerpts: current.excerpts.filter((item) => item.id !== adminEditing.id),
+        words: current.words.filter((item) => item.id !== adminEditing.id),
       }))
       setAdminEditing(null)
     } catch {
@@ -329,9 +383,13 @@ export default function App() {
     setRevealed(false)
   }
 
-  const refreshSession = (data?: StudyData) => {
-    setSessionData(createSessionData(data))
-    setCardIndices({ translation: 0, excerpt: 0 })
+  const refreshSession = (data: StudyData = sessionData, selectedCardId = currentCardId) => {
+    const nextSession = createSessionData(data)
+    const selectedLocation = findCardLocation(nextSession, selectedCardId)
+    setSessionData(nextSession)
+    setCardIndices((current) => selectedLocation
+      ? { ...current, [selectedLocation.mode]: selectedLocation.index }
+      : { translation: 0, excerpt: 0, word: 0 })
     setRevealed(false)
     pullDistanceRef.current = 0
     setPullDistance(0)
@@ -415,14 +473,40 @@ export default function App() {
   useEffect(() => {
     let cancelled = false
 
-    void loadStudyCards().then((data) => {
-      if (!cancelled && data) refreshSession(data)
-    })
+    void loadStudyCards()
+      .then((data) => {
+        if (!cancelled) {
+          const requestedCardId = new URL(window.location.href).searchParams.get('id') ?? ''
+          const nextSession = createSessionData(data)
+          const requestedLocation = findCardLocation(nextSession, requestedCardId)
+          setSessionData(nextSession)
+          if (requestedLocation) {
+            setMode(requestedLocation.mode)
+            setCardIndices((current) => ({ ...current, [requestedLocation.mode]: requestedLocation.index }))
+            setPinnedIgnoredId(requestedCardId)
+          }
+          setIsLoading(false)
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setLoadError(error instanceof Error ? error : new Error('Could not connect to Supabase.'))
+        }
+      })
 
     return () => {
       cancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    if (isLoading || !currentCardId) return
+    const url = new URL(window.location.href)
+    url.searchParams.set('id', currentCardId)
+    window.history.replaceState(null, '', url)
+  }, [currentCardId, isLoading])
+
+  if (loadError) throw loadError
 
   const cardLabel = useMemo(
     () => cards.length > 0 ? `${currentIndex + 1} / ${cards.length}` : '0 / 0',
@@ -476,6 +560,14 @@ export default function App() {
               <BookOpenText size={19} />
               <span><strong>Excerpts</strong><small>诗词与古文</small></span>
             </button>
+            <button
+              type="button"
+              className={mode === 'word' ? 'active' : ''}
+              onClick={() => changeMode('word')}
+            >
+              <WholeWord size={19} />
+              <span><strong>Words</strong><small>Roots & origins</small></span>
+            </button>
           </nav>
           <p className="sidebar-footer">No streaks. No noise.<br />Just something worth remembering.</p>
         </aside>
@@ -484,6 +576,7 @@ export default function App() {
           <div className="mobile-mode-tabs" aria-label="Study modes">
             <button className={mode === 'translation' ? 'active' : ''} onClick={() => changeMode('translation')}>Translation</button>
             <button className={mode === 'excerpt' ? 'active' : ''} onClick={() => changeMode('excerpt')}>Excerpts</button>
+            <button className={mode === 'word' ? 'active' : ''} onClick={() => changeMode('word')}>Words</button>
           </div>
 
           <div className="study-toolbar">
@@ -514,7 +607,9 @@ export default function App() {
           </div>
 
           <section className={`practice-card ${!currentCard ? 'is-empty' : ''}`} aria-live="polite">
-            {!currentCard ? (
+            {isLoading ? (
+              <div className="empty-state" role="status">Loading entries…</div>
+            ) : !currentCard ? (
               <EmptyCards showingFavorites={showFavorites} showingIgnored={showIgnored} showingIgnoredOnly={ignoredOnly} />
             ) : (
               <div key={currentCardId} className={`card-transition card-transition-${navigationDirection === 1 ? 'next' : 'previous'}`}>
@@ -525,9 +620,15 @@ export default function App() {
                     revealed={revealed}
                     onReveal={() => setRevealed((current) => !current)}
                   />
-                ) : (
+                ) : mode === 'excerpt' ? (
                   <ExcerptPractice
                     card={currentCard as ExcerptCard}
+                    revealed={revealed}
+                    onReveal={() => setRevealed((current) => !current)}
+                  />
+                ) : (
+                  <WordPractice
+                    card={currentCard as WordCard}
                     revealed={revealed}
                     onReveal={() => setRevealed((current) => !current)}
                   />
@@ -618,6 +719,7 @@ export default function App() {
                   {adminError && <p className="admin-error" role="alert">{adminError}</p>}
                   <button type="button" className="secondary-button" onClick={() => { setAdminMode('translation'); setAdminEditing(createBlankCard('translation')) }}>Add translation</button>
                   <button type="button" className="secondary-button" onClick={() => { setAdminMode('excerpt'); setAdminEditing(createBlankCard('excerpt')) }}>Add excerpt</button>
+                  <button type="button" className="secondary-button" onClick={() => { setAdminMode('word'); setAdminEditing(createBlankCard('word')) }}>Add word</button>
                 </div>
               )}
             </section>
