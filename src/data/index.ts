@@ -1,6 +1,7 @@
 import translations from './translations.json'
 import excerpts from './excerpts.json'
 import words from './words.json'
+import { piano } from './piano'
 import type { ExcerptCard, StudyData, TranslationCard, WordCard } from '../types'
 
 const studyData: StudyData = {
@@ -16,6 +17,7 @@ const studyData: StudyData = {
     ...card,
     id: `word-${String(position + 1).padStart(3, '0')}`,
   })) as WordCard[],
+  piano,
 }
 
 export { studyData }

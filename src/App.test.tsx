@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import App, { shuffleItems } from './App'
 import { studyData } from './data'
 import { manageStudyCards } from './lib/adminCards'
+import { playPianoSequence } from './lib/pianoAudio'
 
 vi.mock('./lib/studyCards', async () => {
   const { studyData: remoteStudyData } = await import('./data')
@@ -10,6 +11,14 @@ vi.mock('./lib/studyCards', async () => {
 
 vi.mock('./lib/adminCards', () => ({
   manageStudyCards: vi.fn(),
+}))
+
+vi.mock('./lib/pianoAudio', () => ({
+  playPianoSequence: vi.fn(),
+}))
+
+vi.mock('./components/PianoScore', () => ({
+  PianoScore: ({ title }: { title: string }) => <div role="img" aria-label={`Sheet music for ${title}`} />,
 }))
 
 describe('study data', () => {
@@ -111,6 +120,42 @@ describe('TK study flow', () => {
       expect(card.explanation).toContain('Etymology:')
       expect(card.explanation).toContain('Example:')
     })
+  })
+
+  it('provides a built-in playable piano collection without editing controls', async () => {
+    await renderApp()
+    fireEvent.click(screen.getAllByRole('button', { name: 'Piano' })[0])
+
+    expect(screen.getByText('C major scale')).toBeVisible()
+    expect(screen.getByRole('img', { name: 'Sheet music for C major scale' })).toBeVisible()
+    expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Manage entries' })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Play' }))
+    expect(playPianoSequence).toHaveBeenCalledWith(studyData.piano[0].sequence)
+  })
+
+  it('recovers when piano samples cannot be loaded', async () => {
+    vi.mocked(playPianoSequence).mockRejectedValueOnce(new Error('offline'))
+    await renderApp()
+    fireEvent.click(screen.getAllByRole('button', { name: 'Piano' })[0])
+    fireEvent.click(screen.getByRole('button', { name: 'Play' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not load the piano samples')
+    expect(screen.getByRole('button', { name: 'Play' })).toBeEnabled()
+  })
+
+  it('deletes a piano entry and remembers the deletion locally', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    await renderApp()
+    fireEvent.click(screen.getAllByRole('button', { name: 'Piano' })[0])
+    expect(screen.getByText('C major scale')).toBeVisible()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
+
+    expect(screen.queryByText('C major scale')).not.toBeInTheDocument()
+    expect(localStorage.getItem('tk-deleted-piano-cards')).toContain('piano-c-major-scale')
+    expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument()
   })
 
   it('restores the entry identified in the URL', async () => {

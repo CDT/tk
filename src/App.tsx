@@ -8,7 +8,9 @@ import {
   Languages,
   LibraryBig,
   LockKeyhole,
+  Music2,
   Pencil,
+  Play,
   RefreshCw,
   SlidersHorizontal,
   Trash2,
@@ -17,8 +19,11 @@ import {
 import { manageStudyCards, type EditableCard } from './lib/adminCards'
 import { useCardPreferences } from './hooks/useCardPreferences'
 import { loadStudyCards } from './lib/studyCards'
+import { playPianoSequence } from './lib/pianoAudio'
+import { PianoScore } from './components/PianoScore'
 import type {
   ExcerptCard,
+  PianoCard,
   StudyData,
   StudyMode,
   TargetLanguage,
@@ -39,6 +44,16 @@ const PULL_REFRESH_THRESHOLD = 72
 const PULL_TAP_SLOP = 10
 /** Horizontal travel required to move between entries. */
 const SWIPE_NAVIGATION_THRESHOLD = 56
+const DELETED_PIANO_STORAGE_KEY = 'tk-deleted-piano-cards'
+
+function loadDeletedPianoIds() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(DELETED_PIANO_STORAGE_KEY) ?? '[]')
+    return Array.isArray(stored) ? stored.filter((id): id is string => typeof id === 'string') : []
+  } catch {
+    return []
+  }
+}
 
 export function shuffleItems<T>(items: readonly T[]): T[] {
   const shuffled = [...items]
@@ -58,6 +73,7 @@ function createSessionData(data: StudyData) {
     translations: shuffleItems(data.translations),
     excerpts: shuffleItems(data.excerpts),
     words: shuffleItems(data.words),
+    piano: shuffleItems(data.piano),
   }
 }
 
@@ -69,7 +85,10 @@ function findCardLocation(data: StudyData, cardId: string) {
   if (excerptIndex >= 0) return { mode: 'excerpt' as const, index: excerptIndex }
 
   const wordIndex = data.words.findIndex((card) => card.id === cardId)
-  return wordIndex >= 0 ? { mode: 'word' as const, index: wordIndex } : null
+  if (wordIndex >= 0) return { mode: 'word' as const, index: wordIndex }
+
+  const pianoIndex = data.piano.findIndex((card) => card.id === cardId)
+  return pianoIndex >= 0 ? { mode: 'piano' as const, index: pianoIndex } : null
 }
 
 function Logo() {
@@ -169,6 +188,39 @@ function WordPractice({ card, revealed, onReveal }: { card: WordCard; revealed: 
   )
 }
 
+function PianoPractice({ card }: { card: PianoCard }) {
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false)
+  const [audioError, setAudioError] = useState('')
+
+  const play = async () => {
+    setIsLoadingAudio(true)
+    setAudioError('')
+    try {
+      await playPianoSequence(card.sequence)
+    } catch {
+      setAudioError('Could not load the piano samples. Check your connection and try again.')
+    } finally {
+      setIsLoadingAudio(false)
+    }
+  }
+
+  return (
+    <div className="practice-content piano-practice">
+      <div className="excerpt-heading">
+        <span>{card.group}</span>
+        <h2>{card.title}</h2>
+      </div>
+      <PianoScore sequence={card.sequence} preferFlats={card.notes.includes('♭')} title={card.title} />
+      <p className="piano-fingering">{card.fingering}</p>
+      <p className="piano-description">{card.description}</p>
+      <button type="button" className="primary-button piano-play" onClick={() => void play()} disabled={isLoadingAudio}>
+        <Play size={16} fill="currentColor" /> {isLoadingAudio ? 'Loading piano…' : 'Play'}
+      </button>
+      {audioError && <p className="piano-audio-error" role="alert">{audioError}</p>}
+    </div>
+  )
+}
+
 function EmptyCards({ showingFavorites, showingIgnored, showingIgnoredOnly }: { showingFavorites: boolean; showingIgnored: boolean; showingIgnoredOnly: boolean }) {
   return (
     <div className="empty-state">
@@ -237,12 +289,12 @@ function CardEditor({ card, mode, onCancel, onSave, onDelete, saving }: CardEdit
 }
 
 export default function App() {
-  const [sessionData, setSessionData] = useState<StudyData>({ translations: [], excerpts: [], words: [] })
+  const [sessionData, setSessionData] = useState<StudyData>({ translations: [], excerpts: [], words: [], piano: [] })
   const [loadError, setLoadError] = useState<Error | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [mode, setMode] = useState<StudyMode>('translation')
   const [language, setLanguage] = useState<TargetLanguage>('en')
-  const [cardIndices, setCardIndices] = useState<Record<StudyMode, number>>({ translation: 0, excerpt: 0, word: 0 })
+  const [cardIndices, setCardIndices] = useState<Record<StudyMode, number>>({ translation: 0, excerpt: 0, word: 0, piano: 0 })
   const [revealed, setRevealed] = useState(false)
   const [showIgnored, setShowIgnored] = useState(false)
   const [ignoredOnly, setIgnoredOnly] = useState(false)
@@ -265,10 +317,10 @@ export default function App() {
   const pullDraggedRef = useRef(false)
   const { preferences, toggleFavorite, toggleIgnored } = useCardPreferences()
 
-  const allCards: Array<TranslationCard | ExcerptCard | WordCard> = mode === 'translation'
+  const allCards: Array<TranslationCard | ExcerptCard | WordCard | PianoCard> = mode === 'translation'
     ? sessionData.translations
-    : mode === 'excerpt' ? sessionData.excerpts : sessionData.words
-  const getCardId = (card: TranslationCard | ExcerptCard | WordCard) => card.id
+    : mode === 'excerpt' ? sessionData.excerpts : mode === 'word' ? sessionData.words : sessionData.piano
+  const getCardId = (card: TranslationCard | ExcerptCard | WordCard | PianoCard) => card.id
   const cards = allCards.filter((card) => {
     const cardId = getCardId(card)
     const isIgnored = preferences.ignored.includes(cardId)
@@ -323,6 +375,7 @@ export default function App() {
             ? [...current.words, savedCard as WordCard]
             : current.words.map((item) => item.id === savedCard.id ? savedCard as WordCard : item)
           : current.words,
+        piano: current.piano,
       }))
       setAdminEditing(null)
       if (action === 'create') {
@@ -352,6 +405,7 @@ export default function App() {
         translations: current.translations.filter((item) => item.id !== adminEditing.id),
         excerpts: current.excerpts.filter((item) => item.id !== adminEditing.id),
         words: current.words.filter((item) => item.id !== adminEditing.id),
+        piano: current.piano,
       }))
       setAdminEditing(null)
     } catch {
@@ -359,6 +413,19 @@ export default function App() {
     } finally {
       setAdminSaving(false)
     }
+  }
+
+  const deletePianoCard = () => {
+    if (mode !== 'piano' || !currentCard || !window.confirm(`Delete “${(currentCard as PianoCard).title}” from Piano?`)) return
+    const deletedId = currentCard.id
+    const deletedIds = new Set(loadDeletedPianoIds())
+    deletedIds.add(deletedId)
+    localStorage.setItem(DELETED_PIANO_STORAGE_KEY, JSON.stringify([...deletedIds]))
+    setSessionData((current) => ({
+      ...current,
+      piano: current.piano.filter((card) => card.id !== deletedId),
+    }))
+    setRevealed(false)
   }
 
   const goTo = (direction: -1 | 1) => {
@@ -389,7 +456,7 @@ export default function App() {
     setSessionData(nextSession)
     setCardIndices((current) => selectedLocation
       ? { ...current, [selectedLocation.mode]: selectedLocation.index }
-      : { translation: 0, excerpt: 0, word: 0 })
+      : { translation: 0, excerpt: 0, word: 0, piano: 0 })
     setRevealed(false)
     pullDistanceRef.current = 0
     setPullDistance(0)
@@ -476,8 +543,13 @@ export default function App() {
     void loadStudyCards()
       .then((data) => {
         if (!cancelled) {
+          const deletedPianoIds = new Set(loadDeletedPianoIds())
+          const availableData = {
+            ...data,
+            piano: data.piano.filter((card) => !deletedPianoIds.has(card.id)),
+          }
           const requestedCardId = new URL(window.location.href).searchParams.get('id') ?? ''
-          const nextSession = createSessionData(data)
+          const nextSession = createSessionData(availableData)
           const requestedLocation = findCardLocation(nextSession, requestedCardId)
           setSessionData(nextSession)
           if (requestedLocation) {
@@ -568,6 +640,14 @@ export default function App() {
               <WholeWord size={19} />
               <span><strong>Words</strong><small>Roots & origins</small></span>
             </button>
+            <button
+              type="button"
+              className={mode === 'piano' ? 'active' : ''}
+              onClick={() => changeMode('piano')}
+            >
+              <Music2 size={19} />
+              <span><strong>Piano</strong><small>Scales, chords & patterns</small></span>
+            </button>
           </nav>
           <p className="sidebar-footer">No streaks. No noise.<br />Just something worth remembering.</p>
         </aside>
@@ -577,6 +657,7 @@ export default function App() {
             <button className={mode === 'translation' ? 'active' : ''} onClick={() => changeMode('translation')}>Translation</button>
             <button className={mode === 'excerpt' ? 'active' : ''} onClick={() => changeMode('excerpt')}>Excerpts</button>
             <button className={mode === 'word' ? 'active' : ''} onClick={() => changeMode('word')}>Words</button>
+            <button className={mode === 'piano' ? 'active' : ''} onClick={() => changeMode('piano')}>Piano</button>
           </div>
 
           <div className="study-toolbar">
@@ -599,9 +680,11 @@ export default function App() {
               <button className="options-button" type="button" onClick={() => setOptionsOpen(true)} aria-haspopup="dialog">
                 <SlidersHorizontal size={15} /> Options
               </button>
-              <button className="options-button" type="button" onClick={() => openAdmin()} aria-haspopup="dialog">
-                <LockKeyhole size={15} /> Manage entries
-              </button>
+              {mode !== 'piano' && (
+                <button className="options-button" type="button" onClick={() => openAdmin()} aria-haspopup="dialog">
+                  <LockKeyhole size={15} /> Manage entries
+                </button>
+              )}
               <span className="desktop-count">{cardLabel}</span>
             </div>
           </div>
@@ -626,12 +709,14 @@ export default function App() {
                     revealed={revealed}
                     onReveal={() => setRevealed((current) => !current)}
                   />
-                ) : (
+                ) : mode === 'word' ? (
                   <WordPractice
                     card={currentCard as WordCard}
                     revealed={revealed}
                     onReveal={() => setRevealed((current) => !current)}
                   />
+                ) : (
+                  <PianoPractice card={currentCard as PianoCard} />
                 )}
               </div>
             )}
@@ -654,9 +739,16 @@ export default function App() {
                   }}>
                     <Ban size={15} /> {preferences.ignored.includes(currentCardId) ? 'Ignored' : 'Ignore'}
                   </button>
-                  <button type="button" onClick={() => openAdmin(currentCard)}>
-                    <Pencil size={15} /> Edit
-                  </button>
+                  {mode !== 'piano' && (
+                    <button type="button" onClick={() => openAdmin(currentCard as EditableCard)}>
+                      <Pencil size={15} /> Edit
+                    </button>
+                  )}
+                  {mode === 'piano' && (
+                    <button type="button" className="delete-entry-button" onClick={deletePianoCard}>
+                      <Trash2 size={15} /> Delete
+                    </button>
+                  )}
                 </div>
                 <button className="icon-button" type="button" onClick={() => goTo(1)} aria-label="Next card">
                   <ArrowRight size={20} />
