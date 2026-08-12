@@ -11,6 +11,7 @@ vi.mock('./lib/studyCards', async () => {
 
 vi.mock('./lib/adminCards', () => ({
   manageStudyCards: vi.fn(),
+  hasValidAdminSession: vi.fn(() => false),
 }))
 
 vi.mock('./lib/pianoAudio', () => ({

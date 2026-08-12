@@ -16,7 +16,7 @@ import {
   Trash2,
   WholeWord,
 } from 'lucide-react'
-import { manageStudyCards, type EditableCard } from './lib/adminCards'
+import { hasValidAdminSession, manageStudyCards, type EditableCard } from './lib/adminCards'
 import { useCardPreferences } from './hooks/useCardPreferences'
 import { loadStudyCards } from './lib/studyCards'
 import { playPianoSequence } from './lib/pianoAudio'
@@ -303,7 +303,7 @@ export default function App() {
   const [optionsOpen, setOptionsOpen] = useState(false)
   const [adminOpen, setAdminOpen] = useState(false)
   const [adminPassword, setAdminPassword] = useState('')
-  const [adminAuthenticated, setAdminAuthenticated] = useState(false)
+  const [adminAuthenticated, setAdminAuthenticated] = useState(hasValidAdminSession)
   const [adminEditing, setAdminEditing] = useState<EditableCard | null>(null)
   const [adminMode, setAdminMode] = useState<StudyMode>('translation')
   const [adminError, setAdminError] = useState('')
@@ -345,6 +345,7 @@ export default function App() {
     try {
       await manageStudyCards('verify', adminPassword)
       setAdminAuthenticated(true)
+      setAdminPassword('')
     } catch {
       setAdminError('Incorrect password or unavailable admin service.')
     } finally {
