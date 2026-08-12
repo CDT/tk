@@ -19,7 +19,7 @@ import {
 import { hasValidAdminSession, manageStudyCards, type EditableCard } from './lib/adminCards'
 import { useCardPreferences } from './hooks/useCardPreferences'
 import { loadStudyCards } from './lib/studyCards'
-import { playPianoSequence } from './lib/pianoAudio'
+import { playPianoSequence, stopPianoPlayback } from './lib/pianoAudio'
 import { PianoScore } from './components/PianoScore'
 import type {
   ExcerptCard,
@@ -191,12 +191,15 @@ function WordPractice({ card, revealed, onReveal }: { card: WordCard; revealed: 
 function PianoPractice({ card }: { card: PianoCard }) {
   const [isLoadingAudio, setIsLoadingAudio] = useState(false)
   const [audioError, setAudioError] = useState('')
+  const [flipped, setFlipped] = useState(false)
+
+  useEffect(() => stopPianoPlayback, [])
 
   const play = async () => {
     setIsLoadingAudio(true)
     setAudioError('')
     try {
-      await playPianoSequence(card.sequence)
+      if (card.sequence) await playPianoSequence(card.sequence)
     } catch {
       setAudioError('Could not load the piano samples. Check your connection and try again.')
     } finally {
@@ -204,18 +207,38 @@ function PianoPractice({ card }: { card: PianoCard }) {
     }
   }
 
+  if (card.group === 'Musical analysis') {
+    return (
+      <div className="practice-content piano-practice piano-analysis">
+        <div className="excerpt-heading">
+          <span>Musical analysis</span>
+          <h2>{card.title}</h2>
+        </div>
+        <p className="piano-analysis-text">{card.description}</p>
+      </div>
+    )
+  }
+
   return (
-    <div className="practice-content piano-practice">
+    <div className={`practice-content piano-practice piano-sheet-card ${flipped ? 'is-flipped' : ''}`} onClick={() => setFlipped((current) => !current)} role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter') setFlipped((current) => !current) }} aria-label={flipped ? `Show sheet music for ${card.title}` : `Show description for ${card.title}`}>
       <div className="excerpt-heading">
-        <span>{card.group}</span>
+        <span>Sheet part · {card.part} of 27</span>
         <h2>{card.title}</h2>
       </div>
-      <PianoScore sequence={card.sequence} preferFlats={card.notes.includes('♭')} title={card.title} />
-      <p className="piano-fingering">{card.fingering}</p>
-      <p className="piano-description">{card.description}</p>
-      <button type="button" className="primary-button piano-play" onClick={() => void play()} disabled={isLoadingAudio}>
-        <Play size={16} fill="currentColor" /> {isLoadingAudio ? 'Loading piano…' : 'Play'}
-      </button>
+      {!flipped ? (
+        <>
+          <PianoScore sequence={card.sequence ?? []} preferFlats={false} title={card.title} hand="both" />
+          <button type="button" className="primary-button piano-play" onClick={(event) => { event.stopPropagation(); void play() }} disabled={isLoadingAudio}>
+            <Play size={16} fill="currentColor" /> {isLoadingAudio ? 'Loading piano…' : 'Play'}
+          </button>
+          <span className="piano-flip-hint">Tap the card for the phrase description</span>
+        </>
+      ) : (
+        <div className="piano-part-description">
+          <p>{card.description}</p>
+          <span>Tap to return to the sheet music</span>
+        </div>
+      )}
       {audioError && <p className="piano-audio-error" role="alert">{audioError}</p>}
     </div>
   )
@@ -469,6 +492,7 @@ export default function App() {
   // move and up events still bubble back up to the shell.
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!event.isPrimary || event.pointerType !== 'touch' || optionsOpen) return
+    if (event.target instanceof Element && event.target.closest('.piano-practice')) return
     pullStartY.current = event.clientY
     swipeStartX.current = event.clientX
     horizontalSwipeRef.current = false
@@ -577,7 +601,7 @@ export default function App() {
     const url = new URL(window.location.href)
     url.searchParams.set('id', currentCardId)
     window.history.replaceState(null, '', url)
-  }, [currentCardId, isLoading])
+  }, [currentCardId, currentIndex, isLoading, mode])
 
   if (loadError) throw loadError
 
@@ -588,7 +612,7 @@ export default function App() {
 
   return (
     <div
-      className="app-shell"
+      className={`app-shell ${mode === 'piano' ? 'piano-mode' : ''}`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerEnd}
@@ -690,7 +714,7 @@ export default function App() {
             </div>
           </div>
 
-          <section className={`practice-card ${!currentCard ? 'is-empty' : ''}`} aria-live="polite">
+          <section className={`practice-card ${mode === 'piano' ? 'piano-card' : ''} ${!currentCard ? 'is-empty' : ''}`} aria-live="polite">
             {isLoading ? (
               <div className="empty-state" role="status">Loading entries…</div>
             ) : !currentCard ? (
