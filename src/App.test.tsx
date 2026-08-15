@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import App, { shuffleItems } from './App'
 import { studyData } from './data'
 import { manageStudyCards } from './lib/adminCards'
@@ -16,6 +16,7 @@ vi.mock('./lib/adminCards', () => ({
 
 vi.mock('./lib/pianoAudio', () => ({
   playPianoSequence: vi.fn(),
+  stopPianoPlayback: vi.fn(),
 }))
 
 vi.mock('./components/PianoScore', () => ({
@@ -124,22 +125,30 @@ describe('TK study flow', () => {
   })
 
   it('provides a built-in playable piano collection without editing controls', async () => {
-    await renderApp()
-    fireEvent.click(screen.getAllByRole('button', { name: 'Piano' })[0])
+    window.history.replaceState(null, '', '/tk/?id=canon-sheet-part-01')
+    render(<App />)
+    await screen.findByText('Part 1: Opening statement')
 
-    expect(screen.getByText('C major scale')).toBeVisible()
-    expect(screen.getByRole('img', { name: 'Sheet music for C major scale' })).toBeVisible()
+    expect(studyData.piano).toHaveLength(32)
+    expect(studyData.piano.some((card) => card.id === 'piano-c-major-scale')).toBe(false)
+    expect(screen.getByText('Part 1: Opening statement')).toBeVisible()
+    expect(screen.getByRole('img', { name: 'Sheet music for Part 1: Opening statement' })).toBeVisible()
     expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Manage entries' })).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Play' }))
-    expect(playPianoSequence).toHaveBeenCalledWith(studyData.piano[0].sequence)
+    expect(playPianoSequence).toHaveBeenCalledWith(studyData.piano[5].sequence)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show description for Part 1: Opening statement' }))
+    expect(screen.getByText(/Practice this two-measure phrase/)).toBeVisible()
+    expect(screen.queryByRole('img', { name: 'Sheet music for Part 1: Opening statement' })).not.toBeInTheDocument()
   })
 
   it('recovers when piano samples cannot be loaded', async () => {
     vi.mocked(playPianoSequence).mockRejectedValueOnce(new Error('offline'))
-    await renderApp()
-    fireEvent.click(screen.getAllByRole('button', { name: 'Piano' })[0])
+    window.history.replaceState(null, '', '/tk/?id=canon-sheet-part-01')
+    render(<App />)
+    await screen.findByText('Part 1: Opening statement')
     fireEvent.click(screen.getByRole('button', { name: 'Play' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not load the piano samples')
@@ -150,12 +159,12 @@ describe('TK study flow', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     await renderApp()
     fireEvent.click(screen.getAllByRole('button', { name: 'Piano' })[0])
-    expect(screen.getByText('C major scale')).toBeVisible()
+    expect(screen.getByText('Canon in D · Form')).toBeVisible()
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }))
 
-    expect(screen.queryByText('C major scale')).not.toBeInTheDocument()
-    expect(localStorage.getItem('tk-deleted-piano-cards')).toContain('piano-c-major-scale')
+    expect(screen.queryByText('Canon in D · Form')).not.toBeInTheDocument()
+    expect(localStorage.getItem('tk-deleted-piano-cards')).toContain('canon-analysis-form')
     expect(screen.queryByRole('button', { name: 'Edit' })).not.toBeInTheDocument()
   })
 
@@ -166,6 +175,25 @@ describe('TK study flow', () => {
 
     expect(await screen.findByText('登鹳雀楼')).toBeVisible()
     expect(screen.getAllByText('3 / 100')[0]).toBeVisible()
+  })
+
+  it('stores and restores piano entry IDs in the URL', async () => {
+    await renderApp()
+    fireEvent.click(screen.getAllByRole('button', { name: 'Piano' })[0])
+
+    const firstPianoId = new URL(window.location.href).searchParams.get('id')
+    expect(firstPianoId).toMatch(/^canon-(analysis|sheet-part)-/)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next card' }))
+    const nextPianoId = new URL(window.location.href).searchParams.get('id')
+    expect(nextPianoId).toMatch(/^canon-(analysis|sheet-part)-/)
+    expect(nextPianoId).not.toBe(firstPianoId)
+
+    const savedTitle = screen.getByRole('heading', { level: 2 }).textContent
+    window.history.replaceState(null, '', `/tk/?id=${encodeURIComponent(nextPianoId ?? '')}`)
+    cleanup()
+    render(<App />)
+    expect(await screen.findByRole('heading', { level: 2, name: savedTitle ?? '' })).toBeVisible()
   })
 
   it('keeps a newly selected translation language masked until it is tapped', async () => {

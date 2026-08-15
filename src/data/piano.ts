@@ -1,20 +1,75 @@
+import { canonDurationBeats, canonNotes } from './canonMidi'
 import type { PianoCard } from '../types'
 
-export const piano: PianoCard[] = [
-  { id: 'piano-c-major-scale', title: 'C major scale', group: 'Scale', notes: 'C D E F G A B C', fingering: 'RH 1–2–3–1–2–3–4–5', description: 'The white-key major scale. Keep the thumb crossing smooth and the pulse even.', sequence: [[60], [62], [64], [65], [67], [69], [71], [72], [71], [69], [67], [65], [64], [62], [60]] },
-  { id: 'piano-g-major-scale', title: 'G major scale', group: 'Scale', notes: 'G A B C D E F♯ G', fingering: 'RH 1–2–3–1–2–3–4–5', description: 'One sharp: F♯. Listen for the leading tone resolving upward to G.', sequence: [[55], [57], [59], [60], [62], [64], [66], [67], [66], [64], [62], [60], [59], [57], [55]] },
-  { id: 'piano-f-major-scale', title: 'F major scale', group: 'Scale', notes: 'F G A B♭ C D E F', fingering: 'RH 1–2–3–4–1–2–3–4', description: 'One flat: B♭. The right thumb crosses after B♭.', sequence: [[53], [55], [57], [58], [60], [62], [64], [65], [64], [62], [60], [58], [57], [55], [53]] },
-  { id: 'piano-a-minor-scale', title: 'A natural minor scale', group: 'Scale', notes: 'A B C D E F G A', fingering: 'RH 1–2–3–1–2–3–4–5', description: 'The relative minor of C major: the same notes, centered on A.', sequence: [[57], [59], [60], [62], [64], [65], [67], [69], [67], [65], [64], [62], [60], [59], [57]] },
-  { id: 'piano-c-major-chord', title: 'C major triad', group: 'Chord', notes: 'C E G', fingering: 'RH 1–3–5', description: 'Root, major third, and perfect fifth. Build a major triad with 4 + 3 semitones.', sequence: [[60, 64, 67]] },
-  { id: 'piano-c-minor-chord', title: 'C minor triad', group: 'Chord', notes: 'C E♭ G', fingering: 'RH 1–3–5', description: 'Root, minor third, and perfect fifth. Build a minor triad with 3 + 4 semitones.', sequence: [[60, 63, 67]] },
-  { id: 'piano-f-major-chord', title: 'F major triad', group: 'Chord', notes: 'F A C', fingering: 'RH 1–3–5', description: 'The IV chord in C major. Let all three notes begin together.', sequence: [[53, 57, 60]] },
-  { id: 'piano-g-major-chord', title: 'G major triad', group: 'Chord', notes: 'G B D', fingering: 'RH 1–3–5', description: 'The V chord in C major. It naturally wants to resolve to C major.', sequence: [[55, 59, 62]] },
-  { id: 'piano-a-minor-chord', title: 'A minor triad', group: 'Chord', notes: 'A C E', fingering: 'RH 1–3–5', description: 'The vi chord in C major and the tonic triad of A minor.', sequence: [[57, 60, 64]] },
-  { id: 'piano-c-major-inversions', title: 'C major inversions', group: 'Chord', notes: 'C E G · E G C · G C E', fingering: 'RH 1–3–5 · 1–2–5 · 1–3–5', description: 'Move the lowest note up an octave to create each inversion.', sequence: [[60, 64, 67], [64, 67, 72], [67, 72, 76], [64, 67, 72], [60, 64, 67]] },
-  { id: 'piano-c-major-arpeggio', title: 'C major arpeggio', group: 'Arpeggio', notes: 'C E G C · G E C', fingering: 'RH 1–2–3–5 · 3–2–1', description: 'Play the chord tones separately with a relaxed thumb crossing.', sequence: [[60], [64], [67], [72], [67], [64], [60]] },
-  { id: 'piano-a-minor-arpeggio', title: 'A minor arpeggio', group: 'Arpeggio', notes: 'A C E A · E C A', fingering: 'RH 1–2–3–5 · 3–2–1', description: 'Outline the A minor triad evenly up and down.', sequence: [[57], [60], [64], [69], [64], [60], [57]] },
-  { id: 'piano-g-major-arpeggio', title: 'G major arpeggio', group: 'Arpeggio', notes: 'G B D G · D B G', fingering: 'RH 1–2–3–5 · 3–2–1', description: 'Outline the G major triad and keep the wrist loose.', sequence: [[55], [59], [62], [67], [62], [59], [55]] },
-  { id: 'piano-i-iv-v-i', title: 'I–IV–V–I progression', group: 'Exercise', notes: 'C · F · G · C', fingering: 'Use close-position triads', description: 'The basic tonic, predominant, dominant, tonic movement in C major.', sequence: [[60, 64, 67], [60, 65, 69], [59, 62, 67], [60, 64, 67]] },
-  { id: 'piano-i-vi-iv-v', title: 'I–vi–IV–V progression', group: 'Exercise', notes: 'C · Am · F · G', fingering: 'Use the nearest inversion', description: 'A foundational pop progression. Minimize hand movement between chords.', sequence: [[60, 64, 67], [60, 64, 69], [60, 65, 69], [59, 62, 67]] },
-  { id: 'piano-five-finger', title: 'Five-finger pattern', group: 'Exercise', notes: 'C D E F G · F E D C', fingering: 'RH 1–2–3–4–5–4–3–2–1', description: 'Keep every finger close to the keys and every note the same volume.', sequence: [[60], [62], [64], [65], [67], [65], [64], [62], [60]] },
+const phraseLength = 8
+const phraseCount = Math.ceil(canonDurationBeats / phraseLength)
+
+function slice(startBeat: number, endBeat: number) {
+  const sourceStart = canonNotes.find((note) => note.start >= startBeat)?.time ?? 0
+  return canonNotes
+    .filter((note) => note.start < endBeat && note.start + note.duration > startBeat)
+    .map((note) => ({
+      ...note,
+      start: Math.max(0, note.start - startBeat),
+      duration: Math.min(note.start + note.duration, endBeat) - Math.max(note.start, startBeat),
+      time: Math.max(0, (note.time ?? 0) - sourceStart),
+    }))
+}
+
+const analysis: PianoCard[] = [
+  {
+    id: 'canon-analysis-form',
+    title: 'Canon in D · Form',
+    group: 'Musical analysis',
+    description: 'Johann Pachelbel’s Canon in D, in this BreezePiano arrangement, grows by variation over a repeating harmonic ground. The bass pattern remains the structural anchor while the upper voices become progressively more active, reach a climax, and relax into the final cadence.',
+  },
+  {
+    id: 'canon-analysis-harmony',
+    title: 'Canon in D · Harmonic ground',
+    group: 'Musical analysis',
+    description: 'In this BreezePiano arrangement of Pachelbel’s Canon in D, the recurring progression is D–A–Bm–F♯m–G–D–G–A. In D major its functions are I–V–vi–iii–IV–I–IV–V. Reciting this cycle gives every phrase a dependable memory map.',
+  },
+  {
+    id: 'canon-analysis-texture',
+    title: 'Canon in D · Texture and motion',
+    group: 'Musical analysis',
+    description: 'In this arrangement of Canon in D, the opening is spacious. Later phrases shorten note values and pass sequential figures through changing registers. Hear each fast passage as a small pattern moving through the same harmonic cycle rather than as a long string of unrelated notes.',
+  },
+  {
+    id: 'canon-analysis-phrasing',
+    title: 'Canon in D · Phrasing',
+    group: 'Musical analysis',
+    description: 'This BreezePiano version of Canon in D is divided here into short two-measure parts. Each part should have one direction and one arrival. Join neighboring parts only after both can begin independently from memory.',
+  },
+  {
+    id: 'canon-analysis-memory',
+    title: 'Canon in D · Memory landmarks',
+    group: 'Musical analysis',
+    description: 'Remember this Canon in D arrangement as opening, first answer, expanding sequences, running-note middle, high-register climax, descent, and final resolution. Practice starting at each landmark so memory does not depend on always beginning at the first bar.',
+  },
 ]
+
+const landmarks = [
+  'Opening statement', 'Bass pattern settles', 'First melodic answer', 'Sequence begins',
+  'Texture expands', 'Ascending motion', 'First arrival', 'New variation',
+  'Running notes begin', 'Imitation', 'Register opens', 'Midpoint cadence',
+  'Second-half return', 'Denser variation', 'Climbing sequence', 'High-register arrival',
+  'Release and answer', 'New rhythmic figure', 'Final build begins', 'Broad melodic peak',
+  'Descent', 'Return toward tonic', 'Closing variation', 'Final cadence preparation',
+  'Coda', 'Last resolution', 'Release',
+]
+
+const sheetParts: PianoCard[] = Array.from({ length: phraseCount }, (_, index) => {
+  const startBeat = index * phraseLength
+  const endBeat = Math.min(canonDurationBeats, startBeat + phraseLength)
+  return {
+    id: `canon-sheet-part-${String(index + 1).padStart(2, '0')}`,
+    title: `Part ${index + 1}: ${landmarks[index] ?? 'Continuation'}`,
+    group: 'Sheet part',
+    description: `Practice this two-measure phrase by itself. Hear where it begins in the repeating D-major progression, shape it toward its final note, then connect it to Part ${Math.min(index + 2, phraseCount)}.`,
+    sequence: slice(startBeat, endBeat),
+    part: index + 1,
+  }
+})
+
+export const piano: PianoCard[] = [...analysis, ...sheetParts]

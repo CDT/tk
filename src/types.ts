@@ -25,11 +25,20 @@ export interface WordCard {
 export interface PianoCard {
   id: string
   title: string
-  group: 'Scale' | 'Chord' | 'Arpeggio' | 'Exercise'
-  notes: string
-  fingering: string
+  group: 'Musical analysis' | 'Sheet part'
   description: string
-  sequence: number[][]
+  sequence?: PianoNote[]
+  part?: number
+}
+
+export interface PianoNote {
+  note: number
+  start: number
+  duration: number
+  time?: number
+  length?: number
+  velocity: number
+  hand: 'left' | 'right'
 }
 
 export interface StudyData {
