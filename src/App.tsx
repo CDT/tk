@@ -2,39 +2,19 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
-  BookOpenText,
   Ban,
   Heart,
-  Languages,
   LibraryBig,
   LockKeyhole,
-  Music2,
   Pencil,
-  Play,
   RefreshCw,
   SlidersHorizontal,
   Trash2,
-  WholeWord,
 } from 'lucide-react'
 import { hasValidAdminSession, manageStudyCards, type EditableCard } from './lib/adminCards'
 import { useCardPreferences } from './hooks/useCardPreferences'
 import { loadStudyCards } from './lib/studyCards'
-import { playPianoSequence } from './lib/pianoAudio'
-import { PianoScore } from './components/PianoScore'
-import type {
-  ExcerptCard,
-  PianoCard,
-  StudyData,
-  StudyMode,
-  TargetLanguage,
-  TranslationCard,
-  WordCard,
-} from './types'
-
-const languageLabels: Record<TargetLanguage, string> = {
-  en: 'English',
-  ja: '日本語',
-}
+import type { StudyCard, StudyData } from './types'
 
 /** Furthest the pull indicator travels, so a long drag stops stretching the header. */
 const PULL_MAX_DISTANCE = 96
@@ -44,17 +24,6 @@ const PULL_REFRESH_THRESHOLD = 72
 const PULL_TAP_SLOP = 10
 /** Horizontal travel required to move between entries. */
 const SWIPE_NAVIGATION_THRESHOLD = 56
-const DELETED_PIANO_STORAGE_KEY = 'tk-deleted-piano-cards'
-
-function loadDeletedPianoIds() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(DELETED_PIANO_STORAGE_KEY) ?? '[]')
-    return Array.isArray(stored) ? stored.filter((id): id is string => typeof id === 'string') : []
-  } catch {
-    return []
-  }
-}
-
 export function shuffleItems<T>(items: readonly T[]): T[] {
   const shuffled = [...items]
 
@@ -69,26 +38,11 @@ export function shuffleItems<T>(items: readonly T[]): T[] {
 }
 
 function createSessionData(data: StudyData) {
-  return {
-    translations: shuffleItems(data.translations),
-    excerpts: shuffleItems(data.excerpts),
-    words: shuffleItems(data.words),
-    piano: shuffleItems(data.piano),
-  }
+  return shuffleItems(data)
 }
 
 function findCardLocation(data: StudyData, cardId: string) {
-  const translationIndex = data.translations.findIndex((card) => card.id === cardId)
-  if (translationIndex >= 0) return { mode: 'translation' as const, index: translationIndex }
-
-  const excerptIndex = data.excerpts.findIndex((card) => card.id === cardId)
-  if (excerptIndex >= 0) return { mode: 'excerpt' as const, index: excerptIndex }
-
-  const wordIndex = data.words.findIndex((card) => card.id === cardId)
-  if (wordIndex >= 0) return { mode: 'word' as const, index: wordIndex }
-
-  const pianoIndex = data.piano.findIndex((card) => card.id === cardId)
-  return pianoIndex >= 0 ? { mode: 'piano' as const, index: pianoIndex } : null
+  return data.findIndex((card) => card.id === cardId)
 }
 
 function Logo() {
@@ -101,122 +55,14 @@ function Logo() {
   )
 }
 
-interface TranslationPracticeProps {
-  card: TranslationCard
-  language: TargetLanguage
-  revealed: boolean
-  onReveal: () => void
-}
-
-function TranslationPractice({ card, language, revealed, onReveal }: TranslationPracticeProps) {
+function CardPractice({ card, revealed, onReveal }: { card: StudyCard; revealed: boolean; onReveal: () => void }) {
   return (
     <div className="practice-content">
-      <div className="source-block">
-        <p className="source-text business-source" lang="zh-CN">{card.source}</p>
-      </div>
-
-      <div className="divider"><span>translate</span></div>
-
-      <button
-        type="button"
-        className={`answer-area ${revealed ? 'is-revealed' : ''}`}
-        onClick={onReveal}
-        aria-label={revealed ? 'Hide the complete translation' : 'Reveal the complete translation'}
-        data-testid="translation-answer"
-      >
-        <p lang={language}>
-          <span className={!revealed ? 'masked-translation' : undefined}>
-            {card[language]}
-          </span>
-        </p>
-        {!revealed && <span className="reveal-hint">Tap to reveal the full translation</span>}
+      <div className="excerpt-heading"><h2>{card.title}</h2></div>
+      <button type="button" className={`unified-answer ${revealed ? 'is-revealed' : ''}`} onClick={onReveal}
+        aria-label={revealed ? 'Hide content' : 'Reveal content'} aria-expanded={revealed} data-testid="card-answer">
+        {revealed ? <span className="unified-content">{card.content}</span> : <span className="reveal-hint">Tap to reveal</span>}
       </button>
-    </div>
-  )
-}
-
-interface ExcerptPracticeProps {
-  card: ExcerptCard
-  revealed: boolean
-  onReveal: () => void
-}
-
-function ExcerptPractice({ card, revealed, onReveal }: ExcerptPracticeProps) {
-  return (
-    <div className="practice-content">
-      <div className="excerpt-heading">
-        <span>{card.dynasty}</span>
-        <h2>{card.title}</h2>
-        <p>{card.author}</p>
-      </div>
-
-      <button
-        type="button"
-        className={`excerpt-answer ${revealed ? 'is-revealed' : ''}`}
-        onClick={onReveal}
-        aria-label={revealed ? 'Hide the complete excerpt' : 'Reveal the complete excerpt'}
-      >
-        {revealed ? (
-          <div className="poem-lines" lang="zh-CN">
-            {card.text.split('\n').map((line) => <p key={line}>{line}</p>)}
-          </div>
-        ) : (
-          <>
-            <span className="reveal-hint">Tap to reveal the excerpt</span>
-          </>
-        )}
-      </button>
-    </div>
-  )
-}
-
-function WordPractice({ card, revealed, onReveal }: { card: WordCard; revealed: boolean; onReveal: () => void }) {
-  return (
-    <div className="practice-content word-practice">
-      <div className="excerpt-heading">
-        <span>Vocabulary</span>
-        <h2>{card.word}</h2>
-      </div>
-      <button type="button" className="word-answer" onClick={onReveal} aria-label={revealed ? 'Hide the word explanation' : 'Reveal the word explanation'}>
-        {revealed ? (
-          <div className="word-details">
-            <p className="word-details-text">{card.explanation}</p>
-          </div>
-        ) : <span className="reveal-hint">Tap to reveal the explanation</span>}
-      </button>
-    </div>
-  )
-}
-
-function PianoPractice({ card }: { card: PianoCard }) {
-  const [isLoadingAudio, setIsLoadingAudio] = useState(false)
-  const [audioError, setAudioError] = useState('')
-
-  const play = async () => {
-    setIsLoadingAudio(true)
-    setAudioError('')
-    try {
-      await playPianoSequence(card.sequence)
-    } catch {
-      setAudioError('Could not load the piano samples. Check your connection and try again.')
-    } finally {
-      setIsLoadingAudio(false)
-    }
-  }
-
-  return (
-    <div className="practice-content piano-practice">
-      <div className="excerpt-heading">
-        <span>{card.group}</span>
-        <h2>{card.title}</h2>
-      </div>
-      <PianoScore sequence={card.sequence} preferFlats={card.notes.includes('♭')} title={card.title} />
-      <p className="piano-fingering">{card.fingering}</p>
-      <p className="piano-description">{card.description}</p>
-      <button type="button" className="primary-button piano-play" onClick={() => void play()} disabled={isLoadingAudio}>
-        <Play size={16} fill="currentColor" /> {isLoadingAudio ? 'Loading piano…' : 'Play'}
-      </button>
-      {audioError && <p className="piano-audio-error" role="alert">{audioError}</p>}
     </div>
   )
 }
@@ -231,22 +77,19 @@ function EmptyCards({ showingFavorites, showingIgnored, showingIgnoredOnly }: { 
   )
 }
 
-function createBlankCard(mode: StudyMode): EditableCard {
-  if (mode === 'translation') return { id: '', source: '', en: '', ja: '' }
-  if (mode === 'excerpt') return { id: '', title: '', author: '', dynasty: '', text: '' }
-  return { id: '', word: '', explanation: '' }
+function createBlankCard(): EditableCard {
+  return { id: '', title: '', content: '' }
 }
 
 interface CardEditorProps {
   card: EditableCard
-  mode: StudyMode
   onCancel: () => void
   onSave: (card: EditableCard) => void
   onDelete: () => void
   saving: boolean
 }
 
-function CardEditor({ card, mode, onCancel, onSave, onDelete, saving }: CardEditorProps) {
+function CardEditor({ card, onCancel, onSave, onDelete, saving }: CardEditorProps) {
   const [draft, setDraft] = useState<EditableCard>(card)
 
   useEffect(() => setDraft(card), [card])
@@ -259,25 +102,8 @@ function CardEditor({ card, mode, onCancel, onSave, onDelete, saving }: CardEdit
 
   return (
     <form className="card-editor" onSubmit={(event) => { event.preventDefault(); onSave(draft) }}>
-      {mode === 'translation' ? (
-        <>
-          <label>Chinese source<textarea required value={(draft as TranslationCard).source} onChange={(event) => update('source', event.target.value)} /></label>
-          <label>English translation<textarea required value={(draft as TranslationCard).en} onChange={(event) => update('en', event.target.value)} /></label>
-          <label>Japanese translation<textarea required value={(draft as TranslationCard).ja} onChange={(event) => update('ja', event.target.value)} /></label>
-        </>
-      ) : mode === 'excerpt' ? (
-        <>
-          <label>Title<input required value={(draft as ExcerptCard).title} onChange={(event) => update('title', event.target.value)} /></label>
-          <label>Author<input required value={(draft as ExcerptCard).author} onChange={(event) => update('author', event.target.value)} /></label>
-          <label>Dynasty<input required value={(draft as ExcerptCard).dynasty} onChange={(event) => update('dynasty', event.target.value)} /></label>
-          <label>Passage<textarea required value={(draft as ExcerptCard).text} onChange={(event) => update('text', event.target.value)} /></label>
-        </>
-      ) : (
-        <>
-          <label>Word<input required value={(draft as WordCard).word} onChange={(event) => update('word', event.target.value)} /></label>
-          <label>Explanation<textarea required value={(draft as WordCard).explanation} onChange={(event) => update('explanation', event.target.value)} placeholder={'Definition: …\nPrefix: …\nPostfix: …\nRoot: …\nEtymology: …\nExample: …'} /></label>
-        </>
-      )}
+      <label>Title<textarea required value={draft.title} onChange={(event) => update('title', event.target.value)} /></label>
+      <label>Content<textarea required value={draft.content} onChange={(event) => update('content', event.target.value)} /></label>
       <div className="editor-actions">
         {!isNew && <button type="button" className="danger-button" onClick={onDelete} disabled={saving}><Trash2 size={14} /> Delete</button>}
         <span />
@@ -289,12 +115,10 @@ function CardEditor({ card, mode, onCancel, onSave, onDelete, saving }: CardEdit
 }
 
 export default function App() {
-  const [sessionData, setSessionData] = useState<StudyData>({ translations: [], excerpts: [], words: [], piano: [] })
+  const [sessionData, setSessionData] = useState<StudyData>([])
   const [loadError, setLoadError] = useState<Error | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [mode, setMode] = useState<StudyMode>('translation')
-  const [language, setLanguage] = useState<TargetLanguage>('en')
-  const [cardIndices, setCardIndices] = useState<Record<StudyMode, number>>({ translation: 0, excerpt: 0, word: 0, piano: 0 })
+  const [cardIndex, setCardIndex] = useState(0)
   const [revealed, setRevealed] = useState(false)
   const [showIgnored, setShowIgnored] = useState(false)
   const [ignoredOnly, setIgnoredOnly] = useState(false)
@@ -305,11 +129,11 @@ export default function App() {
   const [adminPassword, setAdminPassword] = useState('')
   const [adminAuthenticated, setAdminAuthenticated] = useState(hasValidAdminSession)
   const [adminEditing, setAdminEditing] = useState<EditableCard | null>(null)
-  const [adminMode, setAdminMode] = useState<StudyMode>('translation')
   const [adminError, setAdminError] = useState('')
   const [adminSaving, setAdminSaving] = useState(false)
   const [pullDistance, setPullDistance] = useState(0)
   const [navigationDirection, setNavigationDirection] = useState<-1 | 1>(1)
+  const practiceCardRef = useRef<HTMLElement>(null)
   const pullStartY = useRef<number | null>(null)
   const swipeStartX = useRef<number | null>(null)
   const horizontalSwipeRef = useRef(false)
@@ -317,10 +141,8 @@ export default function App() {
   const pullDraggedRef = useRef(false)
   const { preferences, toggleFavorite, toggleIgnored } = useCardPreferences()
 
-  const allCards: Array<TranslationCard | ExcerptCard | WordCard | PianoCard> = mode === 'translation'
-    ? sessionData.translations
-    : mode === 'excerpt' ? sessionData.excerpts : mode === 'word' ? sessionData.words : sessionData.piano
-  const getCardId = (card: TranslationCard | ExcerptCard | WordCard | PianoCard) => card.id
+  const allCards = sessionData
+  const getCardId = (card: StudyCard) => card.id
   const cards = allCards.filter((card) => {
     const cardId = getCardId(card)
     const isIgnored = preferences.ignored.includes(cardId)
@@ -328,14 +150,13 @@ export default function App() {
       && (showIgnored || !isIgnored || cardId === pinnedIgnoredId)
       && (!showFavorites || preferences.favorites.includes(cardId))
   })
-  const currentIndex = Math.min(cardIndices[mode], Math.max(cards.length - 1, 0))
+  const currentIndex = Math.min(cardIndex, Math.max(cards.length - 1, 0))
   const currentCard = cards[currentIndex]
   const currentCardId = currentCard ? getCardId(currentCard) : ''
 
-  const openAdmin = (card: EditableCard | null = null, nextMode: StudyMode = mode) => {
+  const openAdmin = (card: EditableCard | null = null) => {
     setAdminOpen(true)
     setAdminError('')
-    setAdminMode(nextMode)
     setAdminEditing(card)
   }
 
@@ -358,33 +179,16 @@ export default function App() {
     setAdminError('')
     try {
       const action = card.id ? 'update' : 'create'
-      const savedCard = await manageStudyCards(action, adminPassword, card, adminMode)
+      const savedCard = await manageStudyCards(action, adminPassword, card)
       if (!savedCard) throw new Error('No card returned')
-      setSessionData((current) => ({
-        translations: adminMode === 'translation'
-          ? action === 'create'
-            ? [...current.translations, savedCard as TranslationCard]
-            : current.translations.map((item) => item.id === savedCard.id ? savedCard as TranslationCard : item)
-          : current.translations,
-        excerpts: adminMode === 'excerpt'
-          ? action === 'create'
-            ? [...current.excerpts, savedCard as ExcerptCard]
-            : current.excerpts.map((item) => item.id === savedCard.id ? savedCard as ExcerptCard : item)
-          : current.excerpts,
-        words: adminMode === 'word'
-          ? action === 'create'
-            ? [...current.words, savedCard as WordCard]
-            : current.words.map((item) => item.id === savedCard.id ? savedCard as WordCard : item)
-          : current.words,
-        piano: current.piano,
-      }))
+      setSessionData((current) => action === 'create'
+        ? [...current, savedCard]
+        : current.map((item) => item.id === savedCard.id ? savedCard : item))
       setAdminEditing(null)
       if (action === 'create') {
-        const savedIndex = adminMode === 'translation'
-          ? sessionData.translations.length
-          : adminMode === 'excerpt' ? sessionData.excerpts.length : sessionData.words.length
-        setMode(adminMode)
-        setCardIndices((current) => ({ ...current, [adminMode]: savedIndex }))
+        setShowFavorites(false)
+        setIgnoredOnly(false)
+        setCardIndex(sessionData.filter((item) => showIgnored || !preferences.ignored.includes(item.id)).length)
         setPinnedIgnoredId(null)
         setRevealed(false)
         setAdminOpen(false)
@@ -402,31 +206,14 @@ export default function App() {
     setAdminError('')
     try {
       await manageStudyCards('delete', adminPassword, adminEditing)
-      setSessionData((current) => ({
-        translations: current.translations.filter((item) => item.id !== adminEditing.id),
-        excerpts: current.excerpts.filter((item) => item.id !== adminEditing.id),
-        words: current.words.filter((item) => item.id !== adminEditing.id),
-        piano: current.piano,
-      }))
+      setSessionData((current) => current.filter((item) => item.id !== adminEditing.id))
+      setRevealed(false)
       setAdminEditing(null)
     } catch {
       setAdminError('Could not delete this entry.')
     } finally {
       setAdminSaving(false)
     }
-  }
-
-  const deletePianoCard = () => {
-    if (mode !== 'piano' || !currentCard || !window.confirm(`Delete “${(currentCard as PianoCard).title}” from Piano?`)) return
-    const deletedId = currentCard.id
-    const deletedIds = new Set(loadDeletedPianoIds())
-    deletedIds.add(deletedId)
-    localStorage.setItem(DELETED_PIANO_STORAGE_KEY, JSON.stringify([...deletedIds]))
-    setSessionData((current) => ({
-      ...current,
-      piano: current.piano.filter((card) => card.id !== deletedId),
-    }))
-    setRevealed(false)
   }
 
   const goTo = (direction: -1 | 1) => {
@@ -437,17 +224,9 @@ export default function App() {
       : cards
     const nextIndex = nextCards.indexOf(nextCard)
     if (nextIndex === -1) return
-    setCardIndices((current) => ({
-      ...current,
-      [mode]: nextIndex,
-    }))
+    setCardIndex(nextIndex)
     setNavigationDirection(direction)
     setPinnedIgnoredId(null)
-    setRevealed(false)
-  }
-
-  const changeMode = (nextMode: StudyMode) => {
-    setMode(nextMode)
     setRevealed(false)
   }
 
@@ -455,9 +234,11 @@ export default function App() {
     const nextSession = createSessionData(data)
     const selectedLocation = findCardLocation(nextSession, selectedCardId)
     setSessionData(nextSession)
-    setCardIndices((current) => selectedLocation
-      ? { ...current, [selectedLocation.mode]: selectedLocation.index }
-      : { translation: 0, excerpt: 0, word: 0, piano: 0 })
+    const visibleCards = nextSession.filter((card) =>
+      (!ignoredOnly || preferences.ignored.includes(card.id))
+      && (showIgnored || !preferences.ignored.includes(card.id) || card.id === pinnedIgnoredId)
+      && (!showFavorites || preferences.favorites.includes(card.id)))
+    setCardIndex(selectedLocation >= 0 ? Math.max(0, visibleCards.findIndex((card) => card.id === selectedCardId)) : 0)
     setRevealed(false)
     pullDistanceRef.current = 0
     setPullDistance(0)
@@ -468,7 +249,8 @@ export default function App() {
   // Touch pointers are implicitly captured to the pointerdown target anyway, so the
   // move and up events still bubble back up to the shell.
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!event.isPrimary || event.pointerType !== 'touch' || optionsOpen) return
+    if (!event.isPrimary || event.pointerType !== 'touch' || optionsOpen || adminOpen) return
+    if ((practiceCardRef.current?.scrollTop ?? 0) > 0) return
     pullStartY.current = event.clientY
     swipeStartX.current = event.clientX
     horizontalSwipeRef.current = false
@@ -526,7 +308,7 @@ export default function App() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLButtonElement || event.target instanceof HTMLSelectElement) return
+      if (adminOpen || optionsOpen || (event.target instanceof HTMLElement && event.target.closest('button, input, textarea, select, [contenteditable]'))) return
       if (event.code === 'Space' && currentCard) {
         event.preventDefault()
         setRevealed(true)
@@ -544,18 +326,13 @@ export default function App() {
     void loadStudyCards()
       .then((data) => {
         if (!cancelled) {
-          const deletedPianoIds = new Set(loadDeletedPianoIds())
-          const availableData = {
-            ...data,
-            piano: data.piano.filter((card) => !deletedPianoIds.has(card.id)),
-          }
           const requestedCardId = new URL(window.location.href).searchParams.get('id') ?? ''
-          const nextSession = createSessionData(availableData)
+          const nextSession = createSessionData(data)
           const requestedLocation = findCardLocation(nextSession, requestedCardId)
           setSessionData(nextSession)
-          if (requestedLocation) {
-            setMode(requestedLocation.mode)
-            setCardIndices((current) => ({ ...current, [requestedLocation.mode]: requestedLocation.index }))
+          if (requestedLocation >= 0) {
+            const visibleCards = nextSession.filter((card) => !preferences.ignored.includes(card.id) || card.id === requestedCardId)
+            setCardIndex(visibleCards.findIndex((card) => card.id === requestedCardId))
             setPinnedIgnoredId(requestedCardId)
           }
           setIsLoading(false)
@@ -578,6 +355,10 @@ export default function App() {
     url.searchParams.set('id', currentCardId)
     window.history.replaceState(null, '', url)
   }, [currentCardId, isLoading])
+
+  useEffect(() => {
+    if (practiceCardRef.current) practiceCardRef.current.scrollTop = 0
+  }, [currentCardId])
 
   if (loadError) throw loadError
 
@@ -614,111 +395,32 @@ export default function App() {
           </a>
           <div className="sidebar-intro">
             <p>Quiet study,</p>
-            <p>one sentence at a time.</p>
+            <p>one card at a time.</p>
           </div>
-          <nav aria-label="Study modes">
-            <button
-              type="button"
-              className={mode === 'translation' ? 'active' : ''}
-              onClick={() => changeMode('translation')}
-            >
-              <Languages size={19} />
-              <span><strong>Translation</strong><small>中 → EN / 日本語</small></span>
-            </button>
-            <button
-              type="button"
-              className={mode === 'excerpt' ? 'active' : ''}
-              onClick={() => changeMode('excerpt')}
-            >
-              <BookOpenText size={19} />
-              <span><strong>Excerpts</strong><small>诗词与古文</small></span>
-            </button>
-            <button
-              type="button"
-              className={mode === 'word' ? 'active' : ''}
-              onClick={() => changeMode('word')}
-            >
-              <WholeWord size={19} />
-              <span><strong>Words</strong><small>Roots & origins</small></span>
-            </button>
-            <button
-              type="button"
-              className={mode === 'piano' ? 'active' : ''}
-              onClick={() => changeMode('piano')}
-            >
-              <Music2 size={19} />
-              <span><strong>Piano</strong><small>Scales, chords & patterns</small></span>
-            </button>
-          </nav>
           <p className="sidebar-footer">No streaks. No noise.<br />Just something worth remembering.</p>
         </aside>
 
         <main>
-          <div className="mobile-mode-tabs" aria-label="Study modes">
-            <button className={mode === 'translation' ? 'active' : ''} onClick={() => changeMode('translation')}>Translation</button>
-            <button className={mode === 'excerpt' ? 'active' : ''} onClick={() => changeMode('excerpt')}>Excerpts</button>
-            <button className={mode === 'word' ? 'active' : ''} onClick={() => changeMode('word')}>Words</button>
-            <button className={mode === 'piano' ? 'active' : ''} onClick={() => changeMode('piano')}>Piano</button>
-          </div>
-
           <div className="study-toolbar">
             <div className="toolbar-controls">
-              {mode === 'translation' && (
-                <div className="language-switcher" aria-label="Translation language">
-                  {(Object.keys(languageLabels) as TargetLanguage[]).map((key) => (
-                    <button
-                      type="button"
-                      key={key}
-                      className={language === key ? 'active' : ''}
-                      onPointerDown={() => setRevealed(false)}
-                      onClick={() => { setLanguage(key); setRevealed(false) }}
-                    >
-                      {languageLabels[key]}
-                    </button>
-                  ))}
-                </div>
-              )}
               <button className="options-button" type="button" onClick={() => setOptionsOpen(true)} aria-haspopup="dialog">
                 <SlidersHorizontal size={15} /> Options
               </button>
-              {mode !== 'piano' && (
                 <button className="options-button" type="button" onClick={() => openAdmin()} aria-haspopup="dialog">
                   <LockKeyhole size={15} /> Manage entries
                 </button>
-              )}
               <span className="desktop-count">{cardLabel}</span>
             </div>
           </div>
 
-          <section className={`practice-card ${!currentCard ? 'is-empty' : ''}`} aria-live="polite">
+          <section ref={practiceCardRef} className={`practice-card ${!currentCard ? 'is-empty' : ''}`} aria-live="polite">
             {isLoading ? (
               <div className="empty-state" role="status">Loading entries…</div>
             ) : !currentCard ? (
               <EmptyCards showingFavorites={showFavorites} showingIgnored={showIgnored} showingIgnoredOnly={ignoredOnly} />
             ) : (
               <div key={currentCardId} className={`card-transition card-transition-${navigationDirection === 1 ? 'next' : 'previous'}`}>
-                {mode === 'translation' ? (
-                  <TranslationPractice
-                    card={currentCard as TranslationCard}
-                    language={language}
-                    revealed={revealed}
-                    onReveal={() => setRevealed((current) => !current)}
-                  />
-                ) : mode === 'excerpt' ? (
-                  <ExcerptPractice
-                    card={currentCard as ExcerptCard}
-                    revealed={revealed}
-                    onReveal={() => setRevealed((current) => !current)}
-                  />
-                ) : mode === 'word' ? (
-                  <WordPractice
-                    card={currentCard as WordCard}
-                    revealed={revealed}
-                    onReveal={() => setRevealed((current) => !current)}
-                  />
-                ) : (
-                  <PianoPractice card={currentCard as PianoCard} />
-                )}
+                <CardPractice card={currentCard} revealed={revealed} onReveal={() => setRevealed((current) => !current)} />
               </div>
             )}
           </section>
@@ -740,16 +442,7 @@ export default function App() {
                   }}>
                     <Ban size={15} /> {preferences.ignored.includes(currentCardId) ? 'Ignored' : 'Ignore'}
                   </button>
-                  {mode !== 'piano' && (
-                    <button type="button" onClick={() => openAdmin(currentCard as EditableCard)}>
-                      <Pencil size={15} /> Edit
-                    </button>
-                  )}
-                  {mode === 'piano' && (
-                    <button type="button" className="delete-entry-button" onClick={deletePianoCard}>
-                      <Trash2 size={15} /> Delete
-                    </button>
-                  )}
+                      <button type="button" onClick={() => openAdmin(currentCard)}><Pencil size={15} /> Edit</button>
                 </div>
                 <button className="icon-button" type="button" onClick={() => goTo(1)} aria-label="Next card">
                   <ArrowRight size={20} />
@@ -804,15 +497,13 @@ export default function App() {
               ) : adminEditing ? (
                 <>
                   {adminError && <p className="admin-error" role="alert">{adminError}</p>}
-                  <CardEditor card={adminEditing} mode={adminMode} onCancel={() => setAdminEditing(null)} onSave={saveAdminCard} onDelete={deleteAdminCard} saving={adminSaving} />
+                  <CardEditor card={adminEditing} onCancel={() => setAdminEditing(null)} onSave={saveAdminCard} onDelete={deleteAdminCard} saving={adminSaving} />
                 </>
               ) : (
                 <div className="admin-menu">
-                  <p>Choose a collection to add an entry, or use the Edit button on the current card.</p>
+                  <p>Add an entry, or use Edit on the current card.</p>
                   {adminError && <p className="admin-error" role="alert">{adminError}</p>}
-                  <button type="button" className="secondary-button" onClick={() => { setAdminMode('translation'); setAdminEditing(createBlankCard('translation')) }}>Add translation</button>
-                  <button type="button" className="secondary-button" onClick={() => { setAdminMode('excerpt'); setAdminEditing(createBlankCard('excerpt')) }}>Add excerpt</button>
-                  <button type="button" className="secondary-button" onClick={() => { setAdminMode('word'); setAdminEditing(createBlankCard('word')) }}>Add word</button>
+                  <button type="button" className="secondary-button" onClick={() => setAdminEditing(createBlankCard())}>Add entry</button>
                 </div>
               )}
             </section>

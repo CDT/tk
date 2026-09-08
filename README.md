@@ -1,123 +1,72 @@
 # TK
 
-TK is a quiet, distraction-free web app for advanced English and Japanese
-recall practice. Chinese prompts are translated into precise, natural English
-and Japanese rather than treated as literary excerpts.
+TK is a quiet recall app with one shuffled list of study cards. Every card has
+just a title and a content area: tap to reveal, tap again to hide.
 
-The app opens directly into a study session, requires no account, and stores
-all content in local JSON.
+Translations, classical excerpts, and vocabulary share the same interface and
+editor. English and Japanese translations appear together in a single reveal;
+excerpt authorship appears with the passage. Piano practice has been removed.
 
-## Current collections
+## Study controls
 
-**Business Core 01** contains 100 long-form sentences covering frequently used
-workplace situations:
+- Tap the answer area or press Space to reveal content.
+- Swipe horizontally or use arrow buttons/keys to move between cards.
+- Pull down to shuffle while keeping the current card selected.
+- Favorite or ignore entries; preferences stay in this browser.
+- Open Manage entries to unlock the editor. New and existing entries require
+  only Title and Content.
 
-- Meetings and written communication
-- Projects and negotiation
-- Sales and finance
-- Operations and people management
-- Strategy, international work, and compliance
+## Unified data
 
-Each Chinese prompt has an English answer targeting IELTS Band 9-level range
-and precision, plus a natural Japanese answer targeting JLPT N1-level grammar
-and business vocabulary. These labels describe the learning target; the
-sentences are original study material, not official IELTS or JLPT questions.
+Production loads `id`, `title`, and `content` from Supabase. All study content,
+including the 215 bundled fixtures in `src/data/cards.json`, uses this one
+shape. There are no category or language-specific database columns.
 
-**Chinese Classics 01** contains 100 compact recall passages drawn from
-classical poetry, Song ci, and foundational prose. Each card uses a short
-couplet or stanza so the complete exercise fits comfortably in one viewport.
+The table also keeps a globally unique `position` and creation/update timestamps.
+New IDs are UUIDs; existing IDs stay unchanged so favorites and links survive.
+PostgreSQL assigns sequence positions atomically, including concurrent creates.
 
-## Features
+## Upgrade an existing installation
 
-- **Translation recall:** reconstruct the full English or Japanese sentence
-  from a Chinese prompt; the entire answer remains blurred until reveal.
-- **Selectable collections:** translation and excerpt libraries have separate
-  selectors and progress.
-- **100-card contract:** every finished translation or excerpt collection must
-  contain exactly 100 cards.
-- **Lightweight progress:** mark a card as remembered or needing review;
-  progress is saved in the browser.
-- **Keyboard controls:** press <kbd>Space</kbd> to reveal and use the arrow keys
-  to move between cards.
-- **Offline-ready PWA:** includes SVG, PNG, and multi-size ICO app icons.
-- **No-scroll study surface:** the active card and controls fit within one
-  desktop or mobile viewport.
+1. Back up `study_cards` before the release and pause editor writes.
+2. Run `supabase/migrations/202609080001_unify_study_cards.sql`. It combines
+   English and Japanese with a blank line, moves excerpt authorship into content,
+   removes piano rows (if present), and drops the obsolete category fields.
+   Incomplete cards abort the transaction instead of losing source data.
+3. Deploy `supabase/functions/manage-study-cards` to the same Supabase project.
+4. Publish this frontend to GitHub Pages. Coordinate these steps: the previous
+   frontend and Edge Function require columns that the migration removes.
+5. Verify reading, adding, editing, and deleting a temporary entry, then reopen
+   editor access. Existing favorites and card URLs use their original IDs.
 
-## Run locally
+The migration can be rerun without duplicating content. Database policies and
+existing timestamps stay intact. Rollback requires restoring the table backup
+and the previous Edge Function/frontend together; the old columns are removed.
 
-Requirements: Node.js 20.19 or later and npm.
+Fresh installations use `supabase/schema.sql` instead of the migration. Load
+`src/data/cards.json` if starter cards are wanted. Both backend secrets and
+frontend environment variables remain configured as before.
+
+## Development
+
+Use Node.js 20.19 or newer:
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-Vite prints the local URL after startup. The app is served under `/tk/` to
-match its GitHub Pages path.
-
-## Available commands
+The app uses `/tk/` as its base path. Configure Supabase using `.env.example`.
 
 ```bash
-npm run dev      # Start the development server
-npm run build    # Type-check and build for production
-npm run preview  # Preview the production build
-npm run lint     # Run the TypeScript checks
-npm test         # Validate collection data and study flows
+npm run lint
+npm test
+npm run build
 ```
-
-## Content format
-
-Business translations live in
-[`src/data/collections.json`](src/data/collections.json), while classical
-excerpts live in
-[`src/data/chinese-classics-01.json`](src/data/chinese-classics-01.json).
-A translation collection carries its own metadata and exactly 100 cards:
-
-```json
-{
-  "id": "business-core-01",
-  "title": "Business Core 01",
-  "subtitle": "100 high-frequency long sentences",
-  "description": "Advanced workplace communication.",
-  "levels": ["IELTS Band 9 target", "JLPT N1 target"],
-  "cards": []
-}
-```
-
-Each translation is stored as a complete answer. Hint metadata remains in the
-dataset for possible future practice modes, but the current interface masks the
-entire answer before reveal:
-
-```json
-{
-  "id": "bc01-001",
-  "source": "在会议开始之前，我们需要明确今天的首要目标。",
-  "note": "Meetings · Setting priorities",
-  "translations": {
-    "en": {
-      "text": "Before the meeting begins, we need to clarify today's primary objective.",
-      "hints": ["primary objective"]
-    },
-    "ja": {
-      "text": "会議を始める前に、本日の最優先事項を明確にする必要があります。",
-      "hints": ["最優先事項"]
-    }
-  }
-}
-```
-
-Every collection and card `id` must be unique. The automated tests enforce both
-100-card contracts, unique IDs, valid translation metadata, and excerpt
-keywords that occur in the revealed passage.
 
 ## Deployment
 
-Pushes to `main` run the included GitHub Actions workflow and publish `dist/`
-to GitHub Pages. In the repository settings, set **Pages → Source** to
-**GitHub Actions**.
+Pushes to `main` build and deploy through the included GitHub Pages workflow.
+The build uses the repository's Supabase variables and retains the PWA setup.
 
-The configured public URL is [cdt.github.io/tk](https://cdt.github.io/tk/).
-
-## Tech stack
-
-React, TypeScript, Tailwind CSS, Vite, Vitest, and `vite-plugin-pwa`.
+Public URL: [cdt.github.io/tk](https://cdt.github.io/tk/).
