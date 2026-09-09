@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import type { ExcerptCard, StudyMode, TranslationCard, WordCard } from '../types'
+import type { StudyCard } from '../types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
@@ -31,13 +31,12 @@ export function hasValidAdminSession() {
   return getAdminSession() !== null
 }
 
-export type EditableCard = TranslationCard | ExcerptCard | WordCard
+export type EditableCard = StudyCard
 
 export async function manageStudyCards(
   action: 'verify' | 'create' | 'update' | 'delete',
   password: string,
   card?: EditableCard,
-  mode?: StudyMode,
 ): Promise<EditableCard | null> {
   if (!supabase) throw new Error('Supabase is not configured.')
 
@@ -49,7 +48,7 @@ export async function manageStudyCards(
       password: action === 'verify' ? password : legacyAdminPassword || undefined,
       token: session?.token,
       card,
-      mode,
+
     },
   })
 
